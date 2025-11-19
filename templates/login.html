@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Multimaker Resources{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Create New Account / Login</h4>
+            </div>
+            <div class="card-body">
+                <!-- Login Form -->
+                <form method="POST" action="{{ url_for('login') }}">
+                    <h5>Login</h5>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                </form>
+
+                <hr>
+
+                <!-- Register Form -->
+                <form method="POST" action="{{ url_for('register') }}">
+                    <h5>Register New Account</h5>
+                    <div class="mb-3">
+                        <label for="reg_username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="reg_username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reg_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="reg_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reg_full_name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="reg_full_name" name="full_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reg_password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="reg_password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

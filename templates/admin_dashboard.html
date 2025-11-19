@@ -1,0 +1,543 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Multimaker Resources{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>Admin Dashboard</h2>
+        <p>Welcome, Administrator {{ session.full_name }}!</p>
+    </div>
+</div>
+
+<!-- System Statistics -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>System Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h3>{{ users|length }}</h3>
+                                <p>Total Users</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h3>{{ classes|length }}</h3>
+                                <p>Total Classes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <h3>{{ users|selectattr('role', 'equalto', 'admin')|list|length }}</h3>
+                                <p>Admin Users</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <h3>{{ users|selectattr('role', 'equalto', 'student')|list|length }}</h3>
+                                <p>Student Users</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending User Approvals -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Pending User Approvals ({{ pending_users|length }})</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_users %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in pending_users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.full_name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.created_at[:10] if user.created_at }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <form action="{{ url_for('approve_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                                                <button type="submit" class="btn btn-success" onclick="return confirm('Approve this user?')">
+                                                    Approve
+                                                </button>
+                                            </form>
+                                            <form action="{{ url_for('reject_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                                                <button type="submit" class="btn btn-danger" onclick="return confirm('Reject and delete this user?')">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>No pending user approvals.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Management and Class Schedule Management -->
+<div class="row mt-4">
+    <!-- Users Management -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>User Management ({{ users|selectattr('is_approved', 'equalto', 1)|list|length }})</h5>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    Add User
+                </button>
+            </div>
+            <div class="card-body">
+                {% set approved_users = users|selectattr('is_approved', 'equalto', 1) %}
+                {% if approved_users %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in approved_users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.full_name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <span class="badge {% if user.role == 'admin' %}bg-danger{% else %}bg-primary{% endif %}">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
+                                    <td>{{ user.created_at[:10] if user.created_at }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            {% if user.id != session.user_id %}
+                                            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this user?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                            {% else %}
+                                            <button class="btn btn-outline-secondary" disabled title="Cannot delete your own account">
+                                                Delete
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>No approved users found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Schedule Management -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Class Schedule Management ({{ classes|length }})</h5>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">
+                    Add Class
+                </button>
+            </div>
+            <div class="card-body">
+                {% if classes %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Class Name</th>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Instructor</th>
+                                    <th>Students</th>
+                                    <th>Duration</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for class in classes %}
+                                <tr>
+                                    <td>{{ class.class_name }}</td>
+                                    <td>{{ class.day }}</td>
+                                    <td>{{ class.time }}</td>
+                                    <td>{{ class.instructor }}</td>
+                                    <td>
+                                        {% if class.student_names %}
+                                            {% set names = class.student_names.split(',') %}
+                                            <div class="student-list">
+                                                {% for name in names %}
+                                                    {% if name and name != 'None' %}
+                                                        <span class="badge bg-light text-dark mb-1 me-1">
+                                                            {{ name }}
+                                                        </span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">No students enrolled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ class.duration }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editClassModal{{ class.id }}">
+                                                Manage Students
+                                            </button>
+                                            <form action="{{ url_for('delete_class', class_id=class.id) }}" method="POST" style="display: inline;">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this class?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>No classes scheduled.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student Achievements Management -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Student Achievements Management ({{ achievements|length }})</h5>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addAchievementModal">
+                    Add Achievement
+                </button>
+            </div>
+            <div class="card-body">
+                {% if achievements %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Achievement</th>
+                                    <th>Date Achieved</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for achievement in achievements %}
+                                <tr>
+                                    <td>
+                                        {{ achievement.full_name }} 
+                                        <br><small class="text-muted">@{{ achievement.username }}</small>
+                                    </td>
+                                    <td>{{ achievement.achievement }}</td>
+                                    <td>{{ achievement.date_achieved }}</td>
+                                    <td>
+                                        <form action="{{ url_for('delete_achievement', achievement_id=achievement.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this achievement?')">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>No student achievements found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_user') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="full_name" name="full_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="student">Student</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Class Modal -->
+<div class="modal fade" id="addClassModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Class</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_class') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="className" class="form-label">Class Name</label>
+                        <input type="text" class="form-control" id="className" name="class_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="classDay" class="form-label">Day</label>
+                        <select class="form-control" id="classDay" name="day" required>
+                            <option value="">Select Day</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="classTime" class="form-label">Time</label>
+                        <input type="time" class="form-control" id="classTime" name="time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="classInstructor" class="form-label">Instructor</label>
+                        <input type="text" class="form-control" id="classInstructor" name="instructor" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="classStudents" class="form-label">Assign Students</label>
+                        <select multiple class="form-control" id="classStudents" name="student_ids">
+                            {% for user in users %}
+                                {% if user.role == 'student' and user.is_approved == 1 %}
+                                    <option value="{{ user.id }}">{{ user.full_name }} (@{{ user.username }})</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">
+                            <i class="bi bi-info-circle"></i> Click to select students. Selected students will be enrolled.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="classDuration" class="form-label">Duration</label>
+                        <input type="text" class="form-control" id="classDuration" name="duration" placeholder="e.g., 2 hours" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Class</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Class Modals for Managing Students -->
+{% for class in classes %}
+<div class="modal fade" id="editClassModal{{ class.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Manage Students for: {{ class.class_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('edit_class', class_id=class.id) }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Class Information</strong></label>
+                        <div class="border p-2 bg-light rounded">
+                            <small>
+                                <strong>Class:</strong> {{ class.class_name }}<br>
+                                <strong>Day:</strong> {{ class.day }}<br>
+                                <strong>Time:</strong> {{ class.time }}<br>
+                                <strong>Instructor:</strong> {{ class.instructor }}<br>
+                                <strong>Duration:</strong> {{ class.duration }}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Select Students for This Class</strong></label>
+                        
+                        <!-- Student Checkboxes -->
+                        <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                            {% for user in users %}
+                                {% if user.role == 'student' and user.is_approved == 1 %}
+                                    {% set student_ids = class.student_ids.split(',') if class.student_ids else [] %}
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               name="student_ids" 
+                                               value="{{ user.id }}" 
+                                               id="student{{ user.id }}_{{ class.id }}"
+                                               {% if user.id|string in student_ids %}checked{% endif %}>
+                                        <label class="form-check-label" for="student{{ user.id }}_{{ class.id }}">
+                                            <strong>{{ user.full_name }}</strong> 
+                                            <span class="text-muted">(@{{ user.username }})</span>
+                                            {% if user.id|string in student_ids %}
+                                                <span class="badge bg-success ms-2">Currently Enrolled</span>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Simple Instructions -->
+                        <div class="form-text mt-2">
+                            <i class="bi bi-info-circle"></i> 
+                            <strong>How to manage students:</strong><br>
+                            • <strong>Check the box</strong> to add a student to this class<br>
+                            • <strong>Uncheck the box</strong> to remove a student from this class
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Add Achievement Modal -->
+<div class="modal fade" id="addAchievementModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Achievement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_achievement_admin') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="studentSelect" class="form-label">Select Student</label>
+                        <select class="form-control" id="studentSelect" name="user_id" required>
+                            <option value="">Select a Student</option>
+                            {% for user in users %}
+                                {% if user.role == 'student' %}
+                                    <option value="{{ user.id }}">{{ user.full_name }} (@{{ user.username }})</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="achievementText" class="form-label">Achievement</label>
+                        <textarea class="form-control" id="achievementText" name="achievement" rows="3" placeholder="Enter the achievement description..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="achievementDate" class="form-label">Date Achieved</label>
+                        <input type="date" class="form-control" id="achievementDate" name="date_achieved" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Achievement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Set today's date as default for achievement date
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('achievementDate').value = today;
+});
+</script>
+
+<style>
+.student-list .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+.student-list {
+    max-width: 200px;
+}
+</style>
+{% endblock %}

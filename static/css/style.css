@@ -1,0 +1,177 @@
+/* Custom Orange Theme */
+.navbar-custom {
+    background-color: orange !important;
+}
+
+.navbar-custom .navbar-nav .nav-link {
+    color: black !important;
+    font-weight: 500;
+}
+
+.navbar-custom .navbar-nav .nav-link:hover {
+    color: #f0f0f0 !important;
+    text-decoration: underline;
+}
+
+.navbar-custom .navbar-brand {
+    color: black !important;
+}
+
+.footer-custom {
+    background-color: orange !important;
+}
+
+.hero-section {
+    background: linear-gradient(100deg, #ff6600 0%, purple 100%);
+    color: white;
+    border-radius: 10px;
+    margin-top: 20px;
+    padding: 30px 0;
+}
+
+.hero-section h1 {
+    font-weight: bold !important;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Logo and Image Styles */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white !important;
+}
+
+.navbar-logo {
+    height: 40px;
+    margin-right: 10px;
+}
+
+/* Hero Robot Image - UPDATED SIZES */
+.hero-robot {
+    max-height: 300px;  /* Increased from 200px */
+    width: auto;
+    border-radius: 10px;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px; /* Added gap for better spacing */
+}
+
+.hero-text {
+    flex: 1;
+    padding-right: 20px;
+}
+
+.hero-image {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Card hover effects */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Map styles */
+.map-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.map-container iframe {
+    border-radius: 5px;
+    border: none;
+}
+
+/* Collaboration Section Styles */
+.collaboration-img {
+    max-width: 180px;  /* Fixed size */
+    max-height: 120px; /* Fixed size */
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .hero-text {
+        padding-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .hero-robot {
+        max-height: 250px; /* Slightly smaller on mobile */
+        max-width: 100%; /* Ensure it doesn't overflow */
+    }
+    
+    .navbar-logo {
+        height: 30px;
+    }
+
+    .collaboration-img {
+        max-width: 150px;
+        max-height: 100px;
+    }
+}
+
+/* Additional responsive adjustments for very small screens */
+@media (max-width: 480px) {
+    .hero-robot {
+        max-height: 200px;
+    }
+    
+    .hero-section {
+        padding: 20px 0;
+    }
+}
+/* Service Cards Hover Effects */
+.service-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.service-card:hover {
+    border-color: #ff6600;
+    box-shadow: 0 8px 25px rgba(255, 102, 0, 0.15);
+}
+
+/* Modal Image Styling */
+.modal-img {
+    max-height: 400px;
+    width: auto;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Service-specific colors if needed */
+.service-stem {
+    border-left: 4px solid #28a745;
+}
+
+.service-training {
+    border-left: 4px solid #dc3545;
+}
+
+.service-project {
+    border-left: 4px solid #ffc107;
+}

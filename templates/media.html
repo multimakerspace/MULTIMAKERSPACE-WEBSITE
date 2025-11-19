@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Media Gallery - Multimaker Resources{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>Media Gallery</h2>
+            <p class="lead">Explore our collection of images and moments</p>
+        </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Filter by Category</h5>
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('media_gallery') }}?category=all" 
+                           class="btn {% if current_category == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            All
+                        </a>
+                        {% for cat in categories %}
+                        <a href="{{ url_for('media_gallery') }}?category={{ cat.category }}" 
+                           class="btn {% if current_category == cat.category %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            {{ cat.category|title }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Media Grid -->
+    <div class="row">
+        {% if media %}
+            {% for item in media %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100">
+                    <img src="{{ url_for('static', filename='media/' + item.filename) }}" 
+                         class="card-img-top" 
+                         alt="{{ item.title }}"
+                         style="height: 250px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.title }}</h5>
+                        {% if item.description %}
+                        <p class="card-text">{{ item.description }}</p>
+                        {% endif %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ item.category|title }}</small>
+                            <small class="text-muted">{{ item.uploaded_at[:10] }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-images fa-3x text-muted mb-3"></i>
+                    <h4>No media found</h4>
+                    <p class="text-muted">No images available in this category yet.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

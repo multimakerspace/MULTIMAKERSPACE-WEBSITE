@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section with Robot -->
+<div class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="display-4 fw-bold">MULTIMAKER SPACE</h1>
+                <p class="lead">Multimaker Space is an innovative company that specializes in providing educational solutions and cutting-edge technology in the realms of STEM (Science, Technology, Engineering, Mathematics) and the Fine Arts</p>
+                <a href="{{ url_for('contact') }}" class="btn btn-light btn-lg">CONTACT NOW</a>
+            </div>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='images/robot.png') }}" alt="Robot" class="hero-robot">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div cl<div class="services-section py-5">
+    <h2 class="text-center mb-5">Our Service</h2>
+    <div class="row">
+        <!-- STEM CLASS Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 service-card" data-bs-toggle="modal" data-bs-target="#stemModal" style="cursor: pointer;">
+                <div class="card-body text-center">
+                    <div class="service-icon mb-3">
+                        <i class="fas fa-robot fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">STEM CLASS</h5>
+                    <p class="card-text">3D PRINTING</p>
+                    <p class="card-text">MICROBIT CLASS</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TRAINING Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 service-card" data-bs-toggle="modal" data-bs-target="#trainingModal" style="cursor: pointer;">
+                <div class="card-body text-center">
+                    <div class="service-icon mb-3">
+                        <i class="fas fa-gem fa-3x text-success"></i>
+                    </div>
+                    <h5 class="card-title">TRAINING</h5>
+                    <p class="card-text">LASER ENGRAVING</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUSTOMIZED PROJECT Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 service-card" data-bs-toggle="modal" data-bs-target="#projectModal" style="cursor: pointer;">
+                <div class="card-body text-center">
+                    <div class="service-icon mb-3">
+                        <i class="fas fa-tools fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="card-title">CUSTOMIZED PROJECT</h5>
+                    <ul class="list-unstyled">
+                        <li>EVENT SHOWCASE</li>
+                        <li>UPCYCLE</li>
+                        <li>PROJECT CONSULTATION</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Collaboration Section -->
+<div class="collaboration-section py-5" style="background-color: #f8f9fa;">
+    <h2 class="text-center mb-5">Collaboration</h2>
+    <div class="row text-center align-items-center">
+        <div class="col-md-4 mb-4">
+            <div class="collaboration-item">
+                <img src="{{ url_for('static', filename='images/NADI.jpeg') }}" 
+                     alt="Nadi" 
+                     class="collaboration-img mb-3"
+                     style="max-width: 180px; max-height: 100px;">
+                <h4>NADI</h4>
+                <p>Teluk Air Tawar</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="collaboration-item">
+                <img src="{{ url_for('static', filename='images/yayasan restu.png') }}" 
+                     alt="Yayasan" 
+                     class="collaboration-img mb-3"
+                     style="max-width: 180px; max-height: 100px;">
+                <h4>Yayasan Restu</h4>
+                <p>Strategic Partner</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="collaboration-item">
+                <img src="{{ url_for('static', filename='images/cytron.png') }}" 
+                     alt="Cytron" 
+                     class="collaboration-img mb-3"
+                     style="max-width: 180px; max-height: 100px;">
+                <h4>Cytron</h4>
+                <p>Official Training Partner</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Service Modals -->
+
+<!-- STEM CLASS Modal -->
+<div class="modal fade" id="stemModal" tabindex="-1" aria-labelledby="stemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stemModalLabel">STEM CLASS - 3D PRINTING & MICROBIT</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="{{ url_for('static', filename='images/maker stem.jpg') }}" 
+                     alt="STEM Class - 3D Printing & Microbit" 
+                     class="img-fluid rounded mb-4"
+                     style="max-height: 150px;">
+                <h4>3D Printing, Microbit & STEM Education</h4>
+                <p>Our STEM classes introduce students to the exciting world of 3D printing technology and Microbit programming. Learn design thinking, CAD modeling, hands-on printing skills, and coding fundamentals.</p>
+                <div class="row text-start">
+                    <div class="col-md-12">
+                        <h6>What You'll Learn:</h6>
+                        <ul>
+                            <li>3D Modeling Basics</li>
+                            <li>3D Printing Techniques & Material Science</li>
+                            <li>Microbit Programming Fundamentals</li>
+                            <li>Electronics & Sensor Integration</li>
+                            <li>Creative Project Development</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary">Enroll Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TRAINING Modal -->
+<div class="modal fade" id="trainingModal" tabindex="-1" aria-labelledby="trainingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trainingModalLabel">TRAINING - LASER ENGRAVING</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="{{ url_for('static', filename='images/laser engraving.jpg') }}" 
+                     alt="Laser Engraving Training" 
+                     class="img-fluid rounded mb-4"
+                     style="max-height: 150px;">
+                <h4>Laser Engraving & Cutting</h4>
+                <p>Master the art of laser technology with our comprehensive training programs. From basic operations to advanced techniques.</p>
+                <div class="row text-start">
+                    <div class="col-md-12">
+                        <h6>Training Includes:</h6>
+                        <ul>
+                            <li>Laser Safety Procedures</li>
+                            <li>Material Selection & Compatibility</li>
+                            <li>Software Operation & Design Preparation</li>
+                            <li>Machine Maintenance & Troubleshooting</li>
+                            <li>Wood Engraving, Acrylic Cutting & Metal Marking</li>
+                            <li>Creating Personalized Items & Products</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary">Get Training</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CUSTOMIZED PROJECT Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectModalLabel">CUSTOMIZED PROJECT SERVICES</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="{{ url_for('static', filename='images/custom.jpeg') }}" 
+                     alt="Customized Projects" 
+                     class="img-fluid rounded mb-4"
+                     style="max-height: 150px;">
+                <h4>Tailored Project Solutions</h4>
+                <p>We provide customized project development services to bring your ideas to life with our advanced technology and expertise.</p>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>EVENT SHOWCASE</h6>
+                                <p class="small">Interactive displays and demonstrations for your events</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>UPCYCLE</h6>
+                                <p class="small">Transform existing materials into new valuable products</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6>PROJECT CONSULTATION</h6>
+                                <p class="small">Expert guidance for your technology projects</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('contact') }}" class="btn btn-primary">Start Project</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add hover effects to service cards
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceCards = document.querySelectorAll('.service-card');
+    
+    serviceCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

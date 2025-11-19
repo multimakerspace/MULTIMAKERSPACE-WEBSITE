@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Multimaker Resources{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>Student Dashboard</h2>
+        <p>Welcome, {{ user.full_name or user.username }}!</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Class Schedule -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Class Schedule</h5>
+            </div>
+            <div class="card-body">
+                {% if classes %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Class</th>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Instructor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for class in classes %}
+                                <tr>
+                                    <td>{{ class.class_name }}</td>
+                                    <td>{{ class.day }}</td>
+                                    <td>{{ class.time }}</td>
+                                    <td>{{ class.instructor }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>No classes scheduled.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Achievements - View Only (Current Student Only) -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>My Achievements</h5>
+            </div>
+            <div class="card-body">
+                {% if achievements %}
+                    <div class="list-group">
+                        {% for achievement in achievements %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ achievement.achievement }}</h6>
+                                <small>{{ achievement.date_achieved }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>No achievements yet. Contact an administrator to add your achievements.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

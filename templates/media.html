@@ -3,69 +3,505 @@
 {% block title %}Media Gallery - Multimaker Resources{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h2>Media Gallery</h2>
-            <p class="lead">Explore our collection of images and moments</p>
+
+<style>
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --orange-900: #7c2d12;
+    --white: #ffffff;
+    --text-dark: #431407;
+    --text-muted-m: #78716c;
+    --border-light: #fde8d0;
+}
+
+/* ======== BANNER ======== */
+.media-banner {
+    background: linear-gradient(135deg, var(--orange-900) 0%, var(--orange-700) 40%, var(--orange-600) 70%, var(--orange-500) 100%);
+    border-radius: 20px;
+    padding: 32px 36px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: mUp 0.6s ease 0.1s forwards;
+}
+
+.media-banner::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.media-banner h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+    position: relative;
+}
+
+.media-banner p {
+    margin: 0;
+    opacity: 0.8;
+    font-size: 0.92rem;
+    position: relative;
+}
+
+.media-banner .banner-icon {
+    font-size: 2.5rem;
+    opacity: 0.15;
+    position: absolute;
+    right: 36px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@keyframes mUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ======== FILTER BAR ======== */
+.filter-bar {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(14px);
+    animation: mUp 0.5s ease 0.2s forwards;
+}
+
+.filter-bar-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted-m);
+    margin: 0 0 12px;
+}
+
+.filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-pill {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+    border: 2px solid var(--orange-200);
+    color: var(--orange-700);
+    background: var(--white);
+}
+
+.filter-pill:hover {
+    background: var(--orange-50);
+    border-color: var(--orange-300);
+    color: var(--orange-700);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.filter-pill.active {
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500));
+    color: var(--white);
+    border-color: var(--orange-500);
+    box-shadow: 0 4px 14px rgba(249,115,22,0.25);
+}
+
+.filter-pill.active:hover {
+    color: var(--white);
+    text-decoration: none;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
+}
+
+/* ======== MEDIA GRID ======== */
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 22px;
+}
+
+/* ======== MEDIA CARD ======== */
+.media-card {
+    background: var(--white);
+    border-radius: 18px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    transition: all 0.35s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: mUp 0.5s ease forwards;
+}
+
+.media-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(154, 52, 18, 0.1);
+    border-color: var(--orange-200);
+}
+
+/* Image Container */
+.media-card-img {
+    position: relative;
+    overflow: hidden;
+    height: 240px;
+    cursor: pointer;
+}
+
+.media-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.media-card:hover .media-card-img img {
+    transform: scale(1.06);
+}
+
+/* Overlay on hover */
+.media-card-img .img-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(124,45,18,0.5) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.35s;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 16px;
+}
+
+.media-card:hover .img-overlay {
+    opacity: 1;
+}
+
+.img-overlay .zoom-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--orange-600);
+    font-size: 1rem;
+    transform: translateY(10px);
+    transition: transform 0.3s;
+}
+
+.media-card:hover .img-overlay .zoom-icon {
+    transform: translateY(0);
+}
+
+/* Category tag */
+.media-card-img .cat-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255,255,255,0.92);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--orange-700);
+    z-index: 2;
+}
+
+/* Card Body */
+.media-card-body {
+    padding: 18px 20px;
+}
+
+.media-card-body h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 6px;
+}
+
+.media-card-body .media-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted-m);
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+.media-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.media-card-meta .date-text {
+    font-size: 0.78rem;
+    color: #b8b0a6;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.media-card-meta .date-text i { color: var(--orange-300); }
+
+/* ======== EMPTY STATE ======== */
+.media-empty {
+    text-align: center;
+    padding: 60px 24px;
+    opacity: 0;
+    animation: mUp 0.5s ease 0.3s forwards;
+}
+
+.media-empty .empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: var(--orange-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    font-size: 2rem;
+    color: var(--orange-300);
+}
+
+.media-empty h4 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 8px;
+}
+
+.media-empty p {
+    font-size: 0.9rem;
+    color: var(--text-muted-m);
+    margin: 0;
+}
+
+/* ======== LIGHTBOX ======== */
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    cursor: zoom-out;
+}
+
+.lightbox-overlay.show { display: flex; }
+
+.lightbox-overlay img {
+    max-width: 90%;
+    max-height: 88vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    cursor: default;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-close:hover { background: rgba(255,255,255,0.3); }
+
+.lightbox-caption {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.8);
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: rgba(0,0,0,0.4);
+    padding: 8px 20px;
+    border-radius: 10px;
+    max-width: 80%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .media-banner { padding: 24px 20px; }
+    .media-banner h2 { font-size: 1.3rem; }
+    .media-banner .banner-icon { display: none; }
+    .media-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="container mt-2">
+
+    <!-- ======== BANNER ======== -->
+    <div class="media-banner">
+        <h2><i class="fas fa-images" style="margin-right: 8px;"></i> Media Gallery</h2>
+        <p>Explore our collection of images and moments</p>
+        <i class="fas fa-camera-retro banner-icon"></i>
+    </div>
+
+    <!-- ======== FILTER BAR ======== -->
+    <div class="filter-bar">
+        <div class="filter-bar-title">
+            <i class="fas fa-filter" style="color: var(--orange-400); margin-right: 6px;"></i> Filter by Category
+        </div>
+        <div class="filter-pills">
+            <a href="{{ url_for('media_gallery') }}?category=all"
+               class="filter-pill {% if current_category == 'all' %}active{% endif %}">
+                All
+            </a>
+            {% for cat in categories %}
+            <a href="{{ url_for('media_gallery') }}?category={{ cat.category }}"
+               class="filter-pill {% if current_category == cat.category %}active{% endif %}">
+                {{ cat.category|title }}
+            </a>
+            {% endfor %}
         </div>
     </div>
 
-    <!-- Category Filter -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Filter by Category</h5>
-                    <div class="btn-group" role="group">
-                        <a href="{{ url_for('media_gallery') }}?category=all" 
-                           class="btn {% if current_category == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                            All
-                        </a>
-                        {% for cat in categories %}
-                        <a href="{{ url_for('media_gallery') }}?category={{ cat.category }}" 
-                           class="btn {% if current_category == cat.category %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                            {{ cat.category|title }}
-                        </a>
-                        {% endfor %}
+    <!-- ======== MEDIA GRID ======== -->
+    {% if media %}
+        <div class="media-grid">
+            {% for item in media %}
+            <div class="media-card" data-delay="{{ loop.index0 }}">
+                <div class="media-card-img lightbox-trigger"
+                     data-src="{{ url_for('static', filename='media/' + item.filename) }}"
+                     data-title="{{ item.title|e }}">
+                    <img src="{{ url_for('static', filename='media/' + item.filename) }}"
+                         alt="{{ item.title|e }}"
+                         loading="lazy">
+                    <span class="cat-tag">{{ item.category|title }}</span>
+                    <div class="img-overlay">
+                        <div class="zoom-icon"><i class="fas fa-expand"></i></div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Media Grid -->
-    <div class="row">
-        {% if media %}
-            {% for item in media %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card h-100">
-                    <img src="{{ url_for('static', filename='media/' + item.filename) }}" 
-                         class="card-img-top" 
-                         alt="{{ item.title }}"
-                         style="height: 250px; object-fit: cover;">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ item.title }}</h5>
-                        {% if item.description %}
-                        <p class="card-text">{{ item.description }}</p>
-                        {% endif %}
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">{{ item.category|title }}</small>
-                            <small class="text-muted">{{ item.uploaded_at[:10] }}</small>
-                        </div>
+                <div class="media-card-body">
+                    <h5>{{ item.title }}</h5>
+                    {% if item.description %}
+                    <p class="media-desc">{{ item.description }}</p>
+                    {% endif %}
+                    <div class="media-card-meta">
+                        <span class="date-text">
+                            <i class="fas fa-calendar-alt"></i> {{ item.uploaded_at[:10] }}
+                        </span>
                     </div>
                 </div>
             </div>
             {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="fas fa-images fa-3x text-muted mb-3"></i>
-                    <h4>No media found</h4>
-                    <p class="text-muted">No images available in this category yet.</p>
-                </div>
-            </div>
-        {% endif %}
-    </div>
+        </div>
+    {% else %}
+        <div class="media-empty">
+            <div class="empty-icon"><i class="fas fa-images"></i></div>
+            <h4>No media found</h4>
+            <p>No images available in this category yet.</p>
+        </div>
+    {% endif %}
+
 </div>
+
+<!-- ======== LIGHTBOX ======== -->
+<div class="lightbox-overlay" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">
+        <i class="fas fa-times"></i>
+    </button>
+    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<script>
+(function() {
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+    var lightboxCaption = document.getElementById('lightboxCaption');
+    var lightboxClose = document.getElementById('lightboxClose');
+
+    if (!lightbox) return;
+
+    // Apply staggered animation delays to media cards
+    var cards = document.querySelectorAll('.media-card[data-delay]');
+    for (var c = 0; c < cards.length; c++) {
+        var delay = parseInt(cards[c].getAttribute('data-delay'), 10) || 0;
+        cards[c].style.animationDelay = (delay * 0.08) + 's';
+    }
+
+    // Open lightbox via data attributes (safe for titles with quotes/special chars)
+    var triggers = document.querySelectorAll('.lightbox-trigger');
+    for (var i = 0; i < triggers.length; i++) {
+        triggers[i].addEventListener('click', function() {
+            var src = this.getAttribute('data-src');
+            var title = this.getAttribute('data-title');
+            if (src) {
+                lightboxImg.src = src;
+                lightboxImg.alt = title || '';
+                lightboxCaption.textContent = title || '';
+                lightbox.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    }
+
+    // Close on overlay click (not on image or caption)
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightboxImg || e.target === lightboxCaption) return;
+        lightbox.classList.remove('show');
+        document.body.style.overflow = '';
+    });
+
+    // Close button
+    lightboxClose.addEventListener('click', function(e) {
+        e.stopPropagation();
+        lightbox.classList.remove('show');
+        document.body.style.overflow = '';
+    });
+
+    // Escape key closes lightbox
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.classList.contains('show')) {
+            lightbox.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    });
+})();
+</script>
 {% endblock %}

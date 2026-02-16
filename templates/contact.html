@@ -3,71 +3,352 @@
 {% block title %}Contact Us - Multimaker Resources{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 mx-auto">
-        <h2 class="text-center mb-5">Contact Us</h2>
-        
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Contact Information</h5>
-                        <p><strong>Email:</strong> multimakerspace@gmail.com</p>
-                        <p><strong>Address:</strong> 1736, Jln Pongsu Seribu, Taman Pokok Sena, 13200 Kepala Batas, Pulau Pinang</p>
-                        <p><strong>Business Number:</strong> 019-9710794</p>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Social Media</h5>
-                        <div class="d-flex gap-3">
-                            <a href=https://www.facebook.com/share/1VuD6Czuwc/ 
-                               target="_blank" 
-                               class="btn btn-outline-primary">
-                                Facebook
-                            </a>
-                            <a href=https://www.instagram.com/multimakerspace?igsh=cmx1bTl5ejNqeWd5 
-                               target="_blank" 
-                               class="btn btn-outline-danger">
-                                Instagram
-                            </a>
-                            <a href=https://wa.me/601135396099?text=MakerSTEMclass 
-                                target="_blank" 
-                                style="background-color: #25D366; color: white; padding: 10px 20px; 
-                                    text-decoration: none; border-radius: 5px; font-weight: bold;
-                                    display: inline-flex; align-items: center;">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" class="whatsapp-icon">
-                                Chat with us on WhatsApp
-                            </a>
-                        </div>
-                    </div>
-                </div>
+
+<style>
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --orange-900: #7c2d12;
+    --white: #ffffff;
+    --text-dark: #431407;
+    --text-muted-ct: #78716c;
+    --border-light: #fde8d0;
+}
+
+/* ======== BANNER ======== */
+.ct-banner {
+    background: linear-gradient(135deg, var(--orange-900) 0%, var(--orange-700) 40%, var(--orange-600) 70%, var(--orange-500) 100%);
+    border-radius: 20px;
+    padding: 36px 36px 32px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 28px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: ctUp 0.6s ease 0.1s forwards;
+}
+
+.ct-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -15%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.ct-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -40%; right: -10%;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.ct-banner h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0 0 8px;
+    position: relative;
+}
+
+.ct-banner p {
+    margin: 0;
+    opacity: 0.8;
+    font-size: 0.92rem;
+    position: relative;
+}
+
+@keyframes ctUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ======== CARDS ======== */
+.ct-card {
+    background: var(--white);
+    border-radius: 18px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-bottom: 22px;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: ctUp 0.5s ease forwards;
+    transition: all 0.3s ease;
+}
+
+.ct-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(154,52,18,0.08);
+    border-color: var(--orange-200);
+}
+
+.ct-card-header {
+    padding: 16px 22px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ct-card-header .ct-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.ct-card-header h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.ct-card-body {
+    padding: 22px;
+}
+
+/* ======== CONTACT INFO ITEMS ======== */
+.ct-info-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--orange-50);
+    align-items: flex-start;
+}
+
+.ct-info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.ct-info-item:first-child {
+    padding-top: 0;
+}
+
+.ct-info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--orange-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--orange-500);
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.ct-info-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted-ct);
+    margin-bottom: 2px;
+}
+
+.ct-info-value {
+    font-size: 0.92rem;
+    color: var(--text-dark);
+    font-weight: 500;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.ct-info-value a {
+    color: var(--orange-600);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.ct-info-value a:hover {
+    color: var(--orange-700);
+    text-decoration: underline;
+}
+
+/* ======== SOCIAL ICONS ======== */
+.ct-social-icons {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.ct-social-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--white);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.ct-social-icon:hover {
+    transform: translateY(-4px) scale(1.08);
+    text-decoration: none;
+    color: var(--white);
+}
+
+.ct-social-icon.fb {
+    background: #1877F2;
+    box-shadow: 0 4px 14px rgba(24,119,242,0.3);
+}
+.ct-social-icon.fb:hover { box-shadow: 0 8px 22px rgba(24,119,242,0.4); }
+
+.ct-social-icon.ig {
+    background: linear-gradient(135deg, #833AB4, #E4405F, #FCAF45);
+    box-shadow: 0 4px 14px rgba(228,64,95,0.3);
+}
+.ct-social-icon.ig:hover { box-shadow: 0 8px 22px rgba(228,64,95,0.4); }
+
+.ct-social-icon.wa {
+    background: #25D366;
+    box-shadow: 0 4px 14px rgba(37,211,102,0.3);
+}
+.ct-social-icon.wa:hover { box-shadow: 0 8px 22px rgba(37,211,102,0.4); }
+
+/* ======== MAP ======== */
+.ct-map-wrap {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid var(--orange-100);
+}
+
+.ct-map-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 320px;
+    border: none;
+}
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 768px) {
+    .ct-banner { padding: 28px 20px 24px; }
+    .ct-banner h2 { font-size: 1.35rem; }
+}
+</style>
+
+<div class="container mt-2">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+
+            <!-- ======== BANNER ======== -->
+            <div class="ct-banner">
+                <h2><i class="fas fa-headset" style="margin-right: 8px;"></i> Contact Us</h2>
+                <p>Get in touch with MultiMaker Space — we'd love to hear from you!</p>
             </div>
-            
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Our Location</h5>
-                        <div class="map-container">
-                            <iframe 
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3971.496937749912!2d100.45244459999999!3d5.4929611000000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x304ad120c05fd413%3A0xeb3a21af399a09cc!2sMultimaker%20Space!5e0!3m2!1sen!2smy!4v1762762819771!5m2!1sen!2smy" 
-                                width="100%" 
-                                height="300" 
-                                style="border:0;" 
-                                allowfullscreen="" 
-                                loading="lazy" 
-                                referrerpolicy="no-referrer-when-downgrade">
-                            </iframe>
+
+            <div class="row">
+
+                <!-- ======== LEFT COLUMN ======== -->
+                <div class="col-md-6">
+
+                    <!-- Contact Information -->
+                    <div class="ct-card" style="animation-delay: 0.15s;">
+                        <div class="ct-card-header">
+                            <div class="ct-header-icon"><i class="fas fa-address-book"></i></div>
+                            <h5>Contact Information</h5>
+                        </div>
+                        <div class="ct-card-body">
+                            <div class="ct-info-item">
+                                <div class="ct-info-icon"><i class="fas fa-envelope"></i></div>
+                                <div>
+                                    <div class="ct-info-label">Email</div>
+                                    <p class="ct-info-value">
+                                        <a href="mailto:multimakerspace@gmail.com">multimakerspace@gmail.com</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="ct-info-item">
+                                <div class="ct-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                <div>
+                                    <div class="ct-info-label">Address</div>
+                                    <p class="ct-info-value">1736, Jln Pongsu Seribu, Taman Pokok Sena, 13200 Kepala Batas, Pulau Pinang</p>
+                                </div>
+                            </div>
+                            <div class="ct-info-item">
+                                <div class="ct-info-icon"><i class="fas fa-phone-alt"></i></div>
+                                <div>
+                                    <div class="ct-info-label">Business Number</div>
+                                    <p class="ct-info-value">
+                                        <a href="tel:+60199710794">019-9710794</a>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Social Media -->
+                    <div class="ct-card" style="animation-delay: 0.25s;">
+                        <div class="ct-card-header">
+                            <div class="ct-header-icon"><i class="fas fa-share-alt"></i></div>
+                            <h5>Social Media</h5>
+                        </div>
+                        <div class="ct-card-body">
+                            <div class="ct-social-icons">
+                                <a href="https://www.facebook.com/share/1VuD6Czuwc/"
+                                   target="_blank" class="ct-social-icon fb" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="https://www.instagram.com/multimakerspace?igsh=cmx1bTl5ejNqeWd5"
+                                   target="_blank" class="ct-social-icon ig" title="Instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="https://wa.me/601135396099?text=MakerSTEMclass"
+                                   target="_blank" class="ct-social-icon wa" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- ======== RIGHT COLUMN ======== -->
+                <div class="col-md-6">
+
+                    <!-- Map -->
+                    <div class="ct-card" style="animation-delay: 0.2s;">
+                        <div class="ct-card-header">
+                            <div class="ct-header-icon"><i class="fas fa-map-marked-alt"></i></div>
+                            <h5>Our Location</h5>
+                        </div>
+                        <div class="ct-card-body" style="padding: 16px;">
+                            <div class="ct-map-wrap">
+                                <iframe
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3971.496937749912!2d100.45244459999999!3d5.4929611000000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x304ad120c05fd413%3A0xeb3a21af399a09cc!2sMultimaker%20Space!5e0!3m2!1sen!2smy!4v1762762819771!5m2!1sen!2smy"
+                                    allowfullscreen=""
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </div>
 </div>
 
 {% endblock %}
-
-
-

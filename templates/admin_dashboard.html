@@ -1,134 +1,600 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Dashboard - Multimaker Resources{% endblock %}
+{% block title %}Multimaker Resources — Admin Dashboard{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2>Admin Dashboard</h2>
-        <p>Welcome, Administrator {{ session.full_name }}!</p>
+
+<style>
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --white: #ffffff;
+    --cream: #fffcf7;
+    --text-dark: #431407;
+    --text-muted: #78716c;
+    --border-light: #fde8d0;
+}
+
+/* ======== ADMIN WELCOME BANNER ======== */
+.admin-banner {
+    background: linear-gradient(135deg, #7c2d12 0%, #c2410c 35%, #ea580c 60%, #f97316 85%);
+    border-radius: 20px;
+    padding: 32px 36px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease 0.1s forwards;
+}
+
+.admin-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.admin-banner h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+
+.admin-banner p {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 0.95rem;
+}
+
+.admin-banner .admin-icon {
+    font-size: 2.5rem;
+    opacity: 0.15;
+    position: absolute;
+    right: 36px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ======== STAT CARDS ======== */
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    border: 2px solid var(--orange-100);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.5s ease forwards;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(249,115,22,0.1);
+}
+
+.stat-card .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 1.2rem;
+}
+
+.stat-card h3 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.stat-card p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin: 4px 0 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card.s-users::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.stat-card.s-users .stat-icon { background: rgba(59,130,246,0.1); color: #3b82f6; }
+.stat-card.s-users h3 { color: #2563eb; }
+
+.stat-card.s-classes::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.stat-card.s-classes .stat-icon { background: rgba(16,185,129,0.1); color: #10b981; }
+.stat-card.s-classes h3 { color: #059669; }
+
+.stat-card.s-admins::before { background: linear-gradient(90deg, var(--orange-400), var(--orange-500)); }
+.stat-card.s-admins .stat-icon { background: rgba(249,115,22,0.1); color: var(--orange-500); }
+.stat-card.s-admins h3 { color: var(--orange-600); }
+
+.stat-card.s-students::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.stat-card.s-students .stat-icon { background: rgba(139,92,246,0.1); color: #8b5cf6; }
+.stat-card.s-students h3 { color: #7c3aed; }
+
+/* ======== MANAGEMENT QUICK LINKS ======== */
+.mgmt-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    padding: 28px 24px;
+    text-align: center;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.mgmt-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.mgmt-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(249,115,22,0.08);
+}
+
+.mgmt-card:hover::before { transform: scaleX(1); }
+
+.mgmt-card .mgmt-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 1.3rem;
+    transition: transform 0.3s;
+}
+
+.mgmt-card:hover .mgmt-icon { transform: scale(1.1) rotate(5deg); }
+
+.mgmt-card h5 { font-weight: 700; color: var(--text-dark); margin-bottom: 8px; font-size: 1rem; }
+.mgmt-card p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
+
+.mgmt-card.mc-attend::before { background: var(--orange-500); }
+.mgmt-card.mc-attend .mgmt-icon { background: rgba(249,115,22,0.1); color: var(--orange-500); }
+
+.mgmt-card.mc-payment::before { background: #10b981; }
+.mgmt-card.mc-payment .mgmt-icon { background: rgba(16,185,129,0.1); color: #10b981; }
+
+.btn-mgmt {
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: all 0.3s;
+    border: none;
+    color: var(--white);
+}
+
+.btn-mgmt-orange { background: var(--orange-500); }
+.btn-mgmt-orange:hover { background: var(--orange-600); color: var(--white); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+
+.btn-mgmt-green { background: #10b981; }
+.btn-mgmt-green:hover { background: #059669; color: var(--white); box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+
+/* ======== SECTION CARDS ======== */
+.section-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.section-header {
+    padding: 18px 24px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.section-header h5 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-header h5 i { color: var(--orange-500); }
+
+.section-body {
+    padding: 24px;
+}
+
+.section-header .btn-add {
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: var(--orange-500);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.82rem;
+    border: none;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.section-header .btn-add:hover {
+    background: var(--orange-600);
+    box-shadow: 0 4px 12px rgba(249,115,22,0.2);
+}
+
+/* Warning section (Password Resets, Pending) */
+.section-card.section-warning {
+    border-color: var(--orange-300);
+}
+
+.section-card.section-warning .section-header {
+    background: linear-gradient(135deg, var(--orange-100), var(--orange-50));
+    border-bottom-color: var(--orange-200);
+}
+
+/* ======== TABLES ======== */
+.table-admin {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-admin thead th {
+    background: var(--orange-50);
+    color: var(--orange-800);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 11px 14px;
+    border-bottom: 2px solid var(--orange-200);
+    white-space: nowrap;
+}
+
+.table-admin tbody tr { transition: background 0.2s; }
+.table-admin tbody tr:hover { background: var(--orange-50); }
+
+.table-admin tbody td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #fef2e8;
+    font-size: 0.88rem;
+    color: #44403c;
+    vertical-align: middle;
+}
+
+/* Badges */
+.badge-role-admin {
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
+    color: var(--white);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-role-student {
+    background: rgba(59,130,246,0.1);
+    color: #2563eb;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-enrolled {
+    background: rgba(16,185,129,0.1);
+    color: #059669;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* ======== BUTTONS ======== */
+.btn-group-sm .btn { border-radius: 8px; font-size: 0.8rem; }
+
+/* ======== EMPTY STATE ======== */
+.empty-state {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.empty-state i { font-size: 1.5rem; color: var(--orange-300); display: block; margin-bottom: 8px; }
+
+/* ======== MODAL OVERRIDES ======== */
+.modal-header { border-bottom-color: var(--border-light); }
+.modal-footer { border-top-color: var(--border-light); }
+
+/* Student list in tables */
+.student-list { max-width: 200px; }
+.student-list .badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 768px) {
+    .admin-banner { padding: 24px 20px; }
+    .admin-banner h2 { font-size: 1.3rem; }
+    .admin-banner .admin-icon { display: none; }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+
+<!-- ======== ADMIN WELCOME BANNER ======== -->
+<div class="admin-banner">
+    <h2>Admin Dashboard 🛠️</h2>
+    <p>Welcome, {{ session.full_name }}! Manage your MultiMaker Space from here.</p>
+    <i class="fas fa-cogs admin-icon"></i>
+</div>
+
+<!-- ======== STAT CARDS ======== -->
+<div class="stat-cards">
+    <div class="stat-card s-users" style="animation-delay: 0.15s;">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <h3>{{ users|length }}</h3>
+        <p>Total Users</p>
+    </div>
+    <div class="stat-card s-classes" style="animation-delay: 0.25s;">
+        <div class="stat-icon"><i class="fas fa-chalkboard"></i></div>
+        <h3>{{ classes|length }}</h3>
+        <p>Total Classes</p>
+    </div>
+    <div class="stat-card s-admins" style="animation-delay: 0.35s;">
+        <div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+        <h3>{{ users|selectattr('role', 'equalto', 'admin')|list|length }}</h3>
+        <p>Admin Users</p>
+    </div>
+    <div class="stat-card s-students" style="animation-delay: 0.45s;">
+        <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+        <h3>{{ users|selectattr('role', 'equalto', 'student')|list|length }}</h3>
+        <p>Student Users</p>
     </div>
 </div>
 
-<!-- System Statistics -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5>System Statistics</h5>
+<!-- ======== MANAGEMENT QUICK LINKS ======== -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="mgmt-card mc-attend">
+            <div class="mgmt-icon"><i class="fas fa-clipboard-check"></i></div>
+            <h5>Attendance Management</h5>
+            <p>View and manage student attendance records.</p>
+            <a href="{{ url_for('admin_attendance') }}" class="btn-mgmt btn-mgmt-orange">
+                <i class="fas fa-calendar-check"></i> Manage Attendance
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="mgmt-card mc-payment">
+            <div class="mgmt-icon"><i class="fas fa-credit-card"></i></div>
+            <h5>Payment Management</h5>
+            <p>Record and manage student payments.</p>
+            <a href="{{ url_for('admin_payments') }}" class="btn-mgmt btn-mgmt-green">
+                <i class="fas fa-cash-register"></i> Manage Payments
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ======== PASSWORD RESET REQUESTS ======== -->
+{% if reset_requests %}
+<div class="section-card section-warning">
+    <div class="section-header">
+        <h5><i class="fas fa-key"></i> Password Reset Requests ({{ reset_requests|length }})</h5>
+    </div>
+    <div class="section-body">
+        <div class="table-responsive">
+            <table class="table-admin">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Requested</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in reset_requests %}
+                    <tr>
+                        <td>{{ req.full_name or 'Unknown' }}</td>
+                        <td>{{ req.username or req.username_or_email }}</td>
+                        <td>{{ req.email or '-' }}</td>
+                        <td>{{ req.message or '-' }}</td>
+                        <td>{{ req.created_at[:16] if req.created_at else '-' }}</td>
+                        <td>
+                            {% if req.user_id %}
+                            <button type="button" class="btn btn-sm btn-warning" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#handleResetModal{{ req.request_id }}">
+                                Reset Password
+                            </button>
+                            {% else %}
+                            <span class="text-danger small">User not found</span>
+                            {% endif %}
+                            <form action="{{ url_for('dismiss_reset_request_route', request_id=req.request_id) }}" method="POST" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('Dismiss this request?')">
+                                    Dismiss
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Request Modals -->
+{% for req in reset_requests %}
+{% if req.user_id %}
+<div class="modal fade" id="handleResetModal{{ req.request_id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reset Password for {{ req.full_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body">
-                                <h3>{{ users|length }}</h3>
-                                <p>Total Users</p>
-                            </div>
-                        </div>
+            <form action="{{ url_for('handle_reset_request', request_id=req.request_id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="user_id" value="{{ req.user_id }}">
+                <div class="modal-body">
+                    <p><strong>Student:</strong> {{ req.full_name }}</p>
+                    <p><strong>Username:</strong> {{ req.username }}</p>
+                    <p><strong>Email:</strong> {{ req.email }}</p>
+                    {% if req.message %}
+                    <p><strong>Message:</strong> {{ req.message }}</p>
+                    {% endif %}
+                    <hr>
+                    <div class="mb-3">
+                        <label for="new_password_req_{{ req.request_id }}" class="form-label">New Password</label>
+                        <input type="text" class="form-control" id="new_password_req_{{ req.request_id }}" 
+                               name="new_password" required minlength="4" 
+                               placeholder="Enter new password for student">
                     </div>
-                    <div class="col-md-3">
-                        <div class="card bg-success text-white">
-                            <div class="card-body">
-                                <h3>{{ classes|length }}</h3>
-                                <p>Total Classes</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-info text-white">
-                            <div class="card-body">
-                                <h3>{{ users|selectattr('role', 'equalto', 'admin')|list|length }}</h3>
-                                <p>Admin Users</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body">
-                                <h3>{{ users|selectattr('role', 'equalto', 'student')|list|length }}</h3>
-                                <p>Student Users</p>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="text-muted small">After resetting, inform the student of their new password.</p>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+{% endif %}
+{% endfor %}
+{% endif %}
 
-<!-- Pending User Approvals -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Pending User Approvals ({{ pending_users|length }})</h5>
+<!-- ======== PENDING USER APPROVALS ======== -->
+<div class="section-card {% if pending_users %}section-warning{% endif %}">
+    <div class="section-header">
+        <h5><i class="fas fa-user-clock"></i> Pending User Approvals ({{ pending_users|length }})</h5>
+    </div>
+    <div class="section-body">
+        {% if pending_users %}
+            <div class="table-responsive">
+                <table class="table-admin">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in pending_users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.created_at[:10] if user.created_at }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <form action="{{ url_for('approve_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-success" onclick="return confirm('Approve this user?')">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('reject_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Reject and delete this user?')">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                {% if pending_users %}
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
-                                    <th>Full Name</th>
-                                    <th>Email</th>
-                                    <th>Joined</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in pending_users %}
-                                <tr>
-                                    <td>{{ user.id }}</td>
-                                    <td>{{ user.username }}</td>
-                                    <td>{{ user.full_name }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>{{ user.created_at[:10] if user.created_at }}</td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <form action="{{ url_for('approve_user', user_id=user.id) }}" method="POST" style="display: inline;">
-                                                <button type="submit" class="btn btn-success" onclick="return confirm('Approve this user?')">
-                                                    Approve
-                                                </button>
-                                            </form>
-                                            <form action="{{ url_for('reject_user', user_id=user.id) }}" method="POST" style="display: inline;">
-                                                <button type="submit" class="btn btn-danger" onclick="return confirm('Reject and delete this user?')">
-                                                    Reject
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <p>No pending user approvals.</p>
-                {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <p>No pending approvals. All caught up!</p>
             </div>
-        </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- User Management and Class Schedule Management -->
-<div class="row mt-4">
-    <!-- Users Management -->
+<!-- ======== USER MANAGEMENT + CLASS MANAGEMENT ROW ======== -->
+<div class="row">
+    <!-- User Management -->
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>User Management ({{ users|selectattr('is_approved', 'equalto', 1)|list|length }})</h5>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                    Add User
+        <div class="section-card">
+            <div class="section-header">
+                <h5><i class="fas fa-users-cog"></i> User Management ({{ users|selectattr('is_approved', 'equalto', 1)|list|length }})</h5>
+                <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="fas fa-plus"></i> Add User
                 </button>
             </div>
-            <div class="card-body">
+            <div class="section-body">
                 {% set approved_users = users|selectattr('is_approved', 'equalto', 1) %}
                 {% if approved_users %}
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table-admin">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -148,24 +614,28 @@
                                     <td>{{ user.full_name }}</td>
                                     <td>{{ user.email }}</td>
                                     <td>
-                                        <span class="badge {% if user.role == 'admin' %}bg-danger{% else %}bg-primary{% endif %}">
+                                        <span class="{% if user.role == 'admin' %}badge-role-admin{% else %}badge-role-student{% endif %}">
                                             {{ user.role }}
                                         </span>
                                     </td>
                                     <td>{{ user.created_at[:10] if user.created_at }}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            {% if user.id != session.user_id %}
-                                            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display: inline;">
-                                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this user?')">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                            {% else %}
-                                            <button class="btn btn-outline-secondary" disabled title="Cannot delete your own account">
+                                        {% if user.id != session.user_id %}
+                                        <button type="button" class="btn btn-outline-warning" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#resetPasswordModal{{ user.id }}">
+                                            Reset Password
+                                        </button>
+                                        <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this user?')">
                                                 Delete
                                             </button>
-                                            {% endif %}
+                                        </form>
+                                        {% else %}
+                                        <span class="text-muted small"><i class="fas fa-lock"></i> Current</span>
+                                        {% endif %}
                                         </div>
                                     </td>
                                 </tr>
@@ -174,70 +644,119 @@
                         </table>
                     </div>
                 {% else %}
-                    <p>No approved users found.</p>
+                    <div class="empty-state"><i class="fas fa-users"></i><p>No approved users found.</p></div>
                 {% endif %}
             </div>
         </div>
     </div>
 
+    <!-- Reset Password Modals -->
+    {% set approved_users_list = users|selectattr('is_approved', 'equalto', 1)|list %}
+    {% for user in approved_users_list %}
+        {% if user.id != session.user_id %}
+        <div class="modal fade" id="resetPasswordModal{{ user.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reset Password for {{ user.full_name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ url_for('reset_user_password', user_id=user.id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="modal-body">
+                            <p>Username: <strong>{{ user.username }}</strong></p>
+                            <p class="text-muted small">Enter a new temporary password. Tell the student their new password so they can log in.</p>
+                            <div class="mb-3">
+                                <label for="new_password_{{ user.id }}" class="form-label">New Password</label>
+                                <input type="text" class="form-control" id="new_password_{{ user.id }}" 
+                                    name="new_password" required minlength="4" 
+                                    placeholder="Enter new password">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-warning">Reset Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
     <!-- Class Schedule Management -->
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Class Schedule Management ({{ classes|length }})</h5>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">
-                    Add Class
+        <div class="section-card">
+            <div class="section-header">
+                <h5><i class="fas fa-chalkboard-teacher"></i> Class Schedule ({{ classes|length }})</h5>
+                <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addClassModal">
+                    <i class="fas fa-plus"></i> Add Class
                 </button>
             </div>
-            <div class="card-body">
+            <div class="section-body">
                 {% if classes %}
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table-admin">
                             <thead>
                                 <tr>
                                     <th>Class Name</th>
-                                    <th>Day</th>
+                                    <th>Date</th>
                                     <th>Time</th>
                                     <th>Instructor</th>
                                     <th>Students</th>
-                                    <th>Duration</th>
+                                    <th>Hours</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for class in classes %}
                                 <tr>
-                                    <td>{{ class.class_name }}</td>
-                                    <td>{{ class.day }}</td>
+                                    <td><strong>{{ class.class_name }}</strong></td>
+                                    <td>{{ class.class_date }}</td>
                                     <td>{{ class.time }}</td>
                                     <td>{{ class.instructor }}</td>
                                     <td>
-                                        {% if class.student_names %}
-                                            {% set names = class.student_names.split(',') %}
+                                        {% if class.students %}
                                             <div class="student-list">
-                                                {% for name in names %}
-                                                    {% if name and name != 'None' %}
-                                                        <span class="badge bg-light text-dark mb-1 me-1">
-                                                            {{ name }}
-                                                        </span>
-                                                    {% endif %}
+                                                {% for student in class.students %}
+                                                <div class="d-inline-block me-2 mb-1">
+                                                    <span class="badge-enrolled">{{ student.full_name or student.username }}</span>
+                                                    <form action="{{ url_for('remove_student_from_class_route', class_id=class.id, student_id=student.id) }}"
+                                                        method="POST" style="display: inline;" class="remove-student-form">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                    </form>
+                                                </div>
                                                 {% endfor %}
                                             </div>
                                         {% else %}
-                                            <span class="text-muted">No students enrolled</span>
+                                            <span class="text-muted small">No students</span>
                                         {% endif %}
+                                        <br>
+                                        <button class="btn btn-sm btn-outline-primary mt-1" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#manageStudentsModal{{ class.id }}"
+                                                style="border-radius: 8px; font-size: 0.78rem;">
+                                            <i class="fas fa-user-plus"></i> Manage
+                                        </button>
                                     </td>
                                     <td>{{ class.duration }}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <button class="btn btn-outline-primary btn-sm" 
                                                     data-bs-toggle="modal" 
-                                                    data-bs-target="#editClassModal{{ class.id }}">
-                                                Manage Students
+                                                    data-bs-target="#editClassDetailModal{{ class.id }}">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#addNotesModal{{ class.id }}"
+                                                    title="Add admin notes">
+                                                <i class="bi bi-sticky"></i> Notes
                                             </button>
                                             <form action="{{ url_for('delete_class', class_id=class.id) }}" method="POST" style="display: inline;">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this class?')">
-                                                    Delete
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this class?')">
+                                                    <i class="bi bi-trash"></i> Delete
                                                 </button>
                                             </form>
                                         </div>
@@ -248,106 +767,200 @@
                         </table>
                     </div>
                 {% else %}
-                    <p>No classes scheduled.</p>
+                    <div class="empty-state"><i class="fas fa-chalkboard"></i><p>No classes scheduled.</p></div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Student Achievements Management -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Student Achievements Management ({{ achievements|length }})</h5>
-                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addAchievementModal">
-                    Add Achievement
-                </button>
+<!-- ======== STUDENT ACHIEVEMENTS ======== -->
+<div class="section-card">
+    <div class="section-header">
+        <h5><i class="fas fa-trophy"></i> Student Achievements ({{ achievements|length }})</h5>
+        <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addAchievementModal">
+            <i class="fas fa-plus"></i> Add Achievement
+        </button>
+    </div>
+    <div class="section-body">
+        {% if achievements %}
+            <div class="table-responsive">
+                <table class="table-admin">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Achievement</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for achievement in achievements %}
+                        <tr>
+                            <td>
+                                {% if achievement.full_name %}
+                                    <strong>{{ achievement.full_name }}</strong><br>
+                                    <small class="text-muted">@{{ achievement.username }}</small>
+                                {% elif achievement.username %}
+                                    <strong>{{ achievement.username }}</strong>
+                                {% else %}
+                                    <strong>Student ID: {{ achievement.user_id }}</strong>
+                                {% endif %}
+                            </td>
+                            <td>{{ achievement.achievement }}</td>
+                            <td>{{ achievement.date_achieved }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-warning" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editAchievementModal{{ achievement.id }}">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <form action="{{ url_for('delete_achievement', achievement_id=achievement.id) }}" 
+                                          method="POST" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-danger" 
+                                                onclick="return confirm('Delete this achievement?')">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <div class="card-body">
-                {% if achievements %}
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Student</th>
-                                    <th>Achievement</th>
-                                    <th>Date Achieved</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for achievement in achievements %}
-                                <tr>
-                                    <td>
-                                        {{ achievement.full_name }} 
-                                        <br><small class="text-muted">@{{ achievement.username }}</small>
-                                    </td>
-                                    <td>{{ achievement.achievement }}</td>
-                                    <td>{{ achievement.date_achieved }}</td>
-                                    <td>
-                                        <form action="{{ url_for('delete_achievement', achievement_id=achievement.id) }}" method="POST" style="display: inline;">
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this achievement?')">
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <p>No student achievements found.</p>
-                {% endif %}
-            </div>
-        </div>
+        {% else %}
+            <div class="empty-state"><i class="fas fa-trophy"></i><p>No achievements recorded yet.</p></div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Add User Modal -->
-<div class="modal fade" id="addUserModal" tabindex="-1">
-    <div class="modal-dialog">
+<!-- ============================================================ -->
+<!-- ALL MODALS BELOW - FUNCTIONALITY UNCHANGED                   -->
+<!-- ============================================================ -->
+
+<!-- Manage Students Modals -->
+{% for class in classes %}
+<div class="modal fade" id="manageStudentsModal{{ class.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add New User</h5>
+                <h5 class="modal-title">Manage Students: {{ class.class_name }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ url_for('add_user') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Current Students ({{ class.students|length }})</h6>
+                        {% if class.students %}
+                            <div class="list-group mb-3" style="max-height: 300px; overflow-y: auto;">
+                                {% for student in class.students %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ student.full_name or student.username }}</strong><br>
+                                        <small class="text-muted">{{ student.email }}</small>
+                                    </div>
+                                    <form action="{{ url_for('remove_student_from_class_route', class_id=class.id, student_id=student.id) }}" 
+                                          method="POST" style="display: inline;" class="remove-student-form">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-danger" 
+                                                onclick="return confirm('Remove {{ student.full_name or student.username }} from this class?')">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No students enrolled yet.</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Add New Students</h6>
+                        <form action="{{ url_for('assign_students_to_class', class_id=class.id) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="mb-3">
+                                <label class="form-label">Select Students</label>
+                                <input type="text" class="form-control mb-2" id="studentSearch{{ class.id }}" 
+                                       placeholder="Search students..." onkeyup="filterStudents('{{ class.id }}')">
+                                <div class="student-select-list" style="max-height: 250px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                    {% if all_students %}
+                                        {% for student in all_students %}
+                                        {% set is_enrolled = student in class.students %}
+                                        <div class="form-check student-item" data-student-name="{{ (student.full_name or student.username)|lower }}">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="student_ids" value="{{ student.id }}"
+                                                   id="student{{ class.id }}_{{ student.id }}"
+                                                   {% if is_enrolled %}disabled{% endif %}>
+                                            <label class="form-check-label {% if is_enrolled %}text-muted{% endif %}" for="student{{ class.id }}_{{ student.id }}">
+                                                {{ student.full_name or student.username }}
+                                                {% if student.email %}
+                                                    <small class="text-muted d-block">({{ student.email }})</small>
+                                                {% endif %}
+                                                {% if is_enrolled %}
+                                                    <span class="badge bg-success ms-2">Already enrolled</span>
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-muted">No students available.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add Selected Students</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Edit Achievement Modals -->
+{% for achievement in achievements %}
+<div class="modal fade" id="editAchievementModal{{ achievement.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning bg-opacity-10 border-warning">
+                <h5 class="modal-title text-warning"><i class="bi bi-pencil-square"></i> Edit Achievement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('edit_achievement_admin', achievement_id=achievement.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <label class="form-label">Student</label>
+                        <p class="form-control-static bg-light p-2 rounded">
+                            <strong>{{ achievement.full_name or achievement.username }}</strong>
+                            {% if achievement.username %}<br><small class="text-muted">@{{ achievement.username }}</small>{% endif %}
+                        </p>
+                        <input type="hidden" name="user_id" value="{{ achievement.user_id }}">
                     </div>
                     <div class="mb-3">
-                        <label for="full_name" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="full_name" name="full_name" required>
+                        <label for="achievement{{ achievement.id }}" class="form-label">Achievement Description</label>
+                        <textarea class="form-control" id="achievement{{ achievement.id }}" name="achievement" rows="3" required>{{ achievement.achievement }}</textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="role" class="form-label">Role</label>
-                        <select class="form-control" id="role" name="role" required>
-                            <option value="student">Student</option>
-                            <option value="admin">Admin</option>
-                        </select>
+                        <label for="date{{ achievement.id }}" class="form-label">Date Achieved</label>
+                        <input type="date" class="form-control" id="date{{ achievement.id }}" name="date_achieved" value="{{ achievement.date_achieved }}" required>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Add User</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning"><i class="bi bi-save"></i> Save Changes</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+{% endfor %}
 
 <!-- Add Class Modal -->
 <div class="modal fade" id="addClassModal" tabindex="-1">
@@ -358,51 +971,30 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ url_for('add_class') }}" method="POST">
+                <form action="{{ url_for('add_class_route') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
-                        <label for="className" class="form-label">Class Name</label>
-                        <input type="text" class="form-control" id="className" name="class_name" required>
+                        <label for="class_name" class="form-label">Class Name</label>
+                        <input type="text" class="form-control" id="class_name" name="class_name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="classDay" class="form-label">Day</label>
-                        <select class="form-control" id="classDay" name="day" required>
-                            <option value="">Select Day</option>
-                            <option value="Monday">Monday</option>
-                            <option value="Tuesday">Tuesday</option>
-                            <option value="Wednesday">Wednesday</option>
-                            <option value="Thursday">Thursday</option>
-                            <option value="Friday">Friday</option>
-                            <option value="Saturday">Saturday</option>
-                            <option value="Sunday">Sunday</option>
-                        </select>
+                        <label for="date" class="form-label">Class Date</label>
+                        <input type="date" class="form-control" id="date" name="class_date" required>
                     </div>
                     <div class="mb-3">
-                        <label for="classTime" class="form-label">Time</label>
-                        <input type="time" class="form-control" id="classTime" name="time" required>
+                        <label for="time" class="form-label">Time</label>
+                        <input type="time" class="form-control" id="time" name="time" required>
                     </div>
                     <div class="mb-3">
-                        <label for="classInstructor" class="form-label">Instructor</label>
-                        <input type="text" class="form-control" id="classInstructor" name="instructor" required>
+                        <label for="instructor" class="form-label">Instructor</label>
+                        <input type="text" class="form-control" id="instructor" name="instructor" required>
                     </div>
                     <div class="mb-3">
-                        <label for="classStudents" class="form-label">Assign Students</label>
-                        <select multiple class="form-control" id="classStudents" name="student_ids">
-                            {% for user in users %}
-                                {% if user.role == 'student' and user.is_approved == 1 %}
-                                    <option value="{{ user.id }}">{{ user.full_name }} (@{{ user.username }})</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                        <div class="form-text">
-                            <i class="bi bi-info-circle"></i> Click to select students. Selected students will be enrolled.
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="classDuration" class="form-label">Duration</label>
-                        <input type="text" class="form-control" id="classDuration" name="duration" placeholder="e.g., 2 hours" required>
+                        <label for="duration" class="form-label">Duration (Hours)</label>
+                        <input type="number" class="form-control" id="duration" name="duration" min="0.5" max="8" step="0.5" value="1" required>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Add Class</button>
                     </div>
                 </form>
@@ -410,6 +1002,77 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Class Details Modals -->
+{% for class in classes %}
+<div class="modal fade" id="editClassDetailModal{{ class.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Class Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('edit_class_details', class_id=class.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="class_name{{ class.id }}" class="form-label">Class Name</label>
+                        <input type="text" class="form-control" id="class_name{{ class.id }}" name="class_name" value="{{ class.class_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date{{ class.id }}" class="form-label">Class Date</label>
+                        <input type="date" class="form-control" id="date{{ class.id }}" name="class_date" value="{{ class.class_date }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time{{ class.id }}" class="form-label">Time</label>
+                        <input type="time" class="form-control" id="time{{ class.id }}" name="time" value="{{ class.time }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="instructor{{ class.id }}" class="form-label">Instructor</label>
+                        <input type="text" class="form-control" id="instructor{{ class.id }}" name="instructor" value="{{ class.instructor }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration{{ class.id }}" class="form-label">Duration (Hours)</label>
+                        <input type="number" class="form-control" id="duration{{ class.id }}" name="duration" min="0.5" max="8" step="0.5" value="{{ class.duration }}" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Admin Notes Modal -->
+<div class="modal fade" id="addNotesModal{{ class.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Admin Notes for {{ class.class_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_class_notes', class_id=class.id) }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="notes{{ class.id }}" class="form-label">Admin Notes & Availability</label>
+                        <small class="form-text text-muted d-block mb-2">
+                            Add information about your availability, rescheduling options, or other notes for students/parents.
+                        </small>
+                        <textarea class="form-control" id="notes{{ class.id }}" name="admin_notes" rows="5" placeholder="e.g., Available for rescheduling on Saturdays...">{{ class.admin_notes or '' }}</textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Notes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 <!-- Edit Class Modals for Managing Students -->
 {% for class in classes %}
@@ -427,27 +1090,22 @@
                         <div class="border p-2 bg-light rounded">
                             <small>
                                 <strong>Class:</strong> {{ class.class_name }}<br>
-                                <strong>Day:</strong> {{ class.day }}<br>
+                                <strong>Date:</strong> {{ class.class_date }}<br>
                                 <strong>Time:</strong> {{ class.time }}<br>
                                 <strong>Instructor:</strong> {{ class.instructor }}<br>
-                                <strong>Duration:</strong> {{ class.duration }}
+                                <strong>Duration:</strong> {{ class.duration }} hours
                             </small>
                         </div>
                     </div>
-                    
                     <div class="mb-3">
                         <label class="form-label"><strong>Select Students for This Class</strong></label>
-                        
-                        <!-- Student Checkboxes -->
                         <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
                             {% for user in users %}
                                 {% if user.role == 'student' and user.is_approved == 1 %}
                                     {% set student_ids = class.student_ids.split(',') if class.student_ids else [] %}
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" 
-                                               type="checkbox" 
-                                               name="student_ids" 
-                                               value="{{ user.id }}" 
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="student_ids" value="{{ user.id }}" 
                                                id="student{{ user.id }}_{{ class.id }}"
                                                {% if user.id|string in student_ids %}checked{% endif %}>
                                         <label class="form-check-label" for="student{{ user.id }}_{{ class.id }}">
@@ -461,16 +1119,11 @@
                                 {% endif %}
                             {% endfor %}
                         </div>
-                        
-                        <!-- Simple Instructions -->
                         <div class="form-text mt-2">
                             <i class="bi bi-info-circle"></i> 
-                            <strong>How to manage students:</strong><br>
-                            • <strong>Check the box</strong> to add a student to this class<br>
-                            • <strong>Uncheck the box</strong> to remove a student from this class
+                            <strong>Check</strong> to add, <strong>uncheck</strong> to remove students.
                         </div>
                     </div>
-                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -482,6 +1135,51 @@
 </div>
 {% endfor %}
 
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_user') }}" method="POST" id="addUserForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="Enter username">
+                    </div>
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="full_name" name="full_name" required placeholder="Enter full name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" required placeholder="Enter email address">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" name="password" required placeholder="Enter password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="">Select a role</option>
+                            <option value="student">Student</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Add Achievement Modal -->
 <div class="modal fade" id="addAchievementModal" tabindex="-1">
     <div class="modal-dialog">
@@ -492,6 +1190,7 @@
             </div>
             <div class="modal-body">
                 <form action="{{ url_for('add_achievement_admin') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                         <label for="studentSelect" class="form-label">Select Student</label>
                         <select class="form-control" id="studentSelect" name="user_id" required>
@@ -520,24 +1219,41 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Set today's date as default for achievement date
 document.addEventListener('DOMContentLoaded', function() {
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('achievementDate').value = today;
-});
-</script>
+    const achDate = document.getElementById('achievementDate');
+    if (achDate) achDate.value = today;
 
-<style>
-.student-list .badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
+    // Animate stat numbers
+    document.querySelectorAll('.stat-card h3').forEach(el => {
+        const target = parseInt(el.textContent);
+        if (isNaN(target)) return;
+        const duration = 1200;
+        const start = performance.now();
+        el.textContent = '0';
+        function tick(now) {
+            const p = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(eased * target);
+            if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    });
+});
+
+function filterStudents(classId) {
+    const input = document.getElementById('studentSearch' + classId);
+    const filter = input.value.toLowerCase();
+    const items = document.querySelectorAll('#manageStudentsModal' + classId + ' .student-item');
+    items.forEach(item => {
+        const name = item.getAttribute('data-student-name');
+        item.style.display = name.includes(filter) ? 'block' : 'none';
+    });
 }
-.student-list {
-    max-width: 200px;
-}
-</style>
+</script>
 {% endblock %}

@@ -1,14 +1,553 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Hero Section with Robot -->
+
+<!-- ============================================ -->
+<!-- DYNAMIC HOMEPAGE - MultiMaker Space          -->
+<!-- Theme: Orange & White                        -->
+<!-- Features: AJAX loading, animations, counters -->
+<!-- ============================================ -->
+
+<style>
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --orange-900: #7c2d12;
+    --dark: #2d1810;
+    --dark-soft: #4a2c1a;
+    --text-primary: #431407;
+    --text-secondary: #78716c;
+    --white: #ffffff;
+}
+
+/* ======== HERO SECTION ======== */
+.hero-section {
+    background: linear-gradient(135deg, #7c2d12 0%, #c2410c 35%, #ea580c 60%, #f97316 85%, #fb923c 100%);
+    color: var(--white);
+    padding: 80px 0 60px;
+    position: relative;
+    overflow: hidden;
+    min-height: 480px;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(251, 146, 60, 0.1) 0%, transparent 50%);
+    animation: heroGlow 12s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes heroGlow {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(2%, -2%) rotate(3deg); }
+}
+
+.hero-particles {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    animation: floatParticle linear infinite;
+}
+
+@keyframes floatParticle {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-text {
+    flex: 1;
+    max-width: 600px;
+}
+
+.hero-text h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    line-height: 1.1;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: heroFadeUp 0.8s ease-out 0.2s forwards;
+    color: var(--white);
+}
+
+.hero-text h1 .highlight {
+    color: var(--orange-100);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+.hero-text .lead {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.88);
+    margin-bottom: 30px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: heroFadeUp 0.8s ease-out 0.4s forwards;
+}
+
+.hero-cta {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: heroFadeUp 0.8s ease-out 0.6s forwards;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-hero-primary {
+    background: var(--white);
+    color: var(--orange-700);
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    color: var(--orange-800);
+    background: var(--white);
+}
+
+.btn-hero-outline {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid rgba(255,255,255,0.4);
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-hero-outline:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.7);
+    color: var(--white);
+}
+
+.hero-image {
+    flex: 0 0 auto;
+    position: relative;
+    opacity: 0;
+    transform: translateX(40px);
+    animation: heroSlideIn 1s ease-out 0.5s forwards;
+}
+
+.hero-robot {
+    max-height: 350px;
+    filter: drop-shadow(0 20px 40px rgba(0,0,0,0.25));
+    animation: robotFloat 4s ease-in-out infinite;
+}
+
+@keyframes robotFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes heroFadeUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroSlideIn {
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ======== STATS COUNTER BAR ======== */
+.stats-bar {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 30px 40px;
+    margin-top: -40px;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    border-top: 4px solid var(--orange-400);
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px;
+    border-right: 1px solid #f3f4f6;
+}
+
+.stat-item:last-child {
+    border-right: none;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--orange-600), var(--orange-400));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+/* ======== SERVICES SECTION ======== */
+.services-section {
+    padding: 80px 0;
+    background: var(--orange-50);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-header h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.section-header .section-line {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-300));
+    border-radius: 2px;
+    margin: 0 auto 16px;
+}
+
+.section-header p {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#services-container {
+    min-height: 200px;
+}
+
+.service-card-dynamic {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 36px 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid #fde8d0;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.service-card-dynamic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, var(--card-accent, var(--orange-500)), var(--card-accent-end, var(--orange-400)));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.service-card-dynamic:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(249, 115, 22, 0.1);
+    border-color: transparent;
+}
+
+.service-card-dynamic:hover::before {
+    transform: scaleX(1);
+}
+
+.service-icon-wrapper {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 1.8rem;
+    transition: transform 0.3s ease;
+}
+
+.service-card-dynamic:hover .service-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.service-card-dynamic h5 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.service-card-dynamic .service-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.service-card-dynamic .service-items li {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding: 4px 0;
+    transition: color 0.2s;
+}
+
+.service-card-dynamic:hover .service-items li {
+    color: #57534e;
+}
+
+.service-card-dynamic .learn-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--orange-600);
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 16px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s ease;
+}
+
+.service-card-dynamic:hover .learn-more {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Skeleton loading */
+.skeleton {
+    background: linear-gradient(90deg, #fde8d0 25%, #fcd9b0 50%, #fde8d0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-card {
+    height: 260px;
+    border-radius: 16px;
+}
+
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ======== COLLABORATION SECTION ======== */
+.collaboration-section {
+    padding: 80px 0;
+    background: var(--white);
+}
+
+#collaborations-container {
+    min-height: 150px;
+}
+
+.collab-card {
+    background: var(--orange-50);
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    transition: all 0.4s ease;
+    border: 1px solid transparent;
+    height: 100%;
+}
+
+.collab-card:hover {
+    background: var(--white);
+    box-shadow: 0 10px 30px rgba(249, 115, 22, 0.08);
+    border-color: var(--orange-200);
+    transform: translateY(-4px);
+}
+
+.collab-logo {
+    max-width: 160px;
+    max-height: 80px;
+    object-fit: contain;
+    margin-bottom: 16px;
+    filter: grayscale(30%);
+    transition: filter 0.3s ease;
+}
+
+.collab-card:hover .collab-logo {
+    filter: grayscale(0%);
+}
+
+.collab-card h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.collab-card p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Scroll animations */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Loading spinner */
+.ajax-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.spinner-dots {
+    display: flex;
+    gap: 8px;
+}
+
+.spinner-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--orange-400);
+    animation: bounce 1.2s infinite ease-in-out;
+}
+
+.spinner-dots span:nth-child(2) { animation-delay: 0.15s; }
+.spinner-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* Modal accent overrides */
+.modal-header.modal-orange {
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-600)) !important;
+    color: var(--white);
+}
+
+.modal-header.modal-orange-light {
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500)) !important;
+    color: var(--white);
+}
+
+.modal-header.modal-orange-warm {
+    background: linear-gradient(135deg, #e85d04, var(--orange-700)) !important;
+    color: var(--white);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .hero-text h1 { font-size: 2rem; }
+    .hero-cta { justify-content: center; }
+    .hero-robot { max-height: 200px; }
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: -20px;
+        padding: 20px;
+    }
+    .stat-item { border-right: none; }
+    .stat-number { font-size: 1.6rem; }
+}
+</style>
+
+<!-- ======== HERO SECTION ======== -->
 <div class="hero-section">
+    <div class="hero-particles" id="heroParticles"></div>
     <div class="container">
         <div class="hero-content">
             <div class="hero-text">
-                <h1 class="display-4 fw-bold">MULTIMAKER SPACE</h1>
-                <p class="lead">Multimaker Space is an innovative company that specializes in providing educational solutions and cutting-edge technology in the realms of STEM (Science, Technology, Engineering, Mathematics) and the Fine Arts</p>
-                <a href="{{ url_for('contact') }}" class="btn btn-light btn-lg">CONTACT NOW</a>
+                <h1>MULTIMAKER <span class="highlight">SPACE</span></h1>
+                <p class="lead">An innovative company specializing in educational solutions and cutting-edge technology in STEM (Science, Technology, Engineering, Mathematics) and the Fine Arts.</p>
+                <div class="hero-cta">
+                    <a href="{{ url_for('contact') }}" class="btn-hero-primary">
+                        <i class="fas fa-paper-plane"></i> Contact Now
+                    </a>
+                    <a href="#services" class="btn-hero-outline">
+                        <i class="fas fa-arrow-down"></i> Explore Services
+                    </a>
+                </div>
             </div>
             <div class="hero-image">
                 <img src="{{ url_for('static', filename='images/robot.png') }}" alt="Robot" class="hero-robot">
@@ -17,125 +556,88 @@
     </div>
 </div>
 
-<div cl<div class="services-section py-5">
-    <h2 class="text-center mb-5">Our Service</h2>
-    <div class="row">
-        <!-- STEM CLASS Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 service-card" data-bs-toggle="modal" data-bs-target="#stemModal" style="cursor: pointer;">
-                <div class="card-body text-center">
-                    <div class="service-icon mb-3">
-                        <i class="fas fa-robot fa-3x text-primary"></i>
-                    </div>
-                    <h5 class="card-title">STEM CLASS</h5>
-                    <p class="card-text">3D PRINTING</p>
-                    <p class="card-text">MICROBIT CLASS</p>
-                </div>
-            </div>
+<!-- ======== STATS COUNTER BAR ======== -->
+<div class="container">
+    <div class="stats-bar" id="statsBar">
+        <div class="stat-item">
+            <div class="stat-number" data-target="150" data-suffix="+">0</div>
+            <div class="stat-label">Students Trained</div>
         </div>
-
-        <!-- TRAINING Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 service-card" data-bs-toggle="modal" data-bs-target="#trainingModal" style="cursor: pointer;">
-                <div class="card-body text-center">
-                    <div class="service-icon mb-3">
-                        <i class="fas fa-gem fa-3x text-success"></i>
-                    </div>
-                    <h5 class="card-title">TRAINING</h5>
-                    <p class="card-text">LASER ENGRAVING</p>
-                </div>
-            </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="3">0</div>
+            <div class="stat-label">Core Services</div>
         </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="3">0</div>
+            <div class="stat-label">Trusted Partners</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-target="5" data-suffix="+">0</div>
+            <div class="stat-label">Years Experience</div>
+        </div>
+    </div>
+</div>
 
-        <!-- CUSTOMIZED PROJECT Card -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 service-card" data-bs-toggle="modal" data-bs-target="#projectModal" style="cursor: pointer;">
-                <div class="card-body text-center">
-                    <div class="service-icon mb-3">
-                        <i class="fas fa-tools fa-3x text-warning"></i>
-                    </div>
-                    <h5 class="card-title">CUSTOMIZED PROJECT</h5>
-                    <ul class="list-unstyled">
-                        <li>EVENT SHOWCASE</li>
-                        <li>UPCYCLE</li>
-                        <li>PROJECT CONSULTATION</li>
-                    </ul>
-                </div>
+<!-- ======== SERVICES SECTION (AJAX Loaded) ======== -->
+<div class="services-section" id="services">
+    <div class="container">
+        <div class="section-header scroll-reveal">
+            <div class="section-line"></div>
+            <h2>Our Services</h2>
+            <p>Empowering the next generation through technology, creativity, and hands-on learning</p>
+        </div>
+        <div id="services-container" class="row">
+            <div class="col-md-4 mb-4"><div class="skeleton skeleton-card"></div></div>
+            <div class="col-md-4 mb-4"><div class="skeleton skeleton-card"></div></div>
+            <div class="col-md-4 mb-4"><div class="skeleton skeleton-card"></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- ======== COLLABORATION SECTION (AJAX Loaded) ======== -->
+<div class="collaboration-section" id="collaborations">
+    <div class="container">
+        <div class="section-header scroll-reveal">
+            <div class="section-line"></div>
+            <h2>Collaboration</h2>
+            <p>Working together with trusted partners to deliver excellence</p>
+        </div>
+        <div id="collaborations-container" class="row text-center align-items-stretch justify-content-center">
+            <div class="ajax-spinner">
+                <div class="spinner-dots"><span></span><span></span><span></span></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Collaboration Section -->
-<div class="collaboration-section py-5" style="background-color: #f8f9fa;">
-    <h2 class="text-center mb-5">Collaboration</h2>
-    <div class="row text-center align-items-center">
-        <div class="col-md-4 mb-4">
-            <div class="collaboration-item">
-                <img src="{{ url_for('static', filename='images/NADI.jpeg') }}" 
-                     alt="Nadi" 
-                     class="collaboration-img mb-3"
-                     style="max-width: 180px; max-height: 100px;">
-                <h4>NADI</h4>
-                <p>Teluk Air Tawar</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="collaboration-item">
-                <img src="{{ url_for('static', filename='images/yayasan restu.png') }}" 
-                     alt="Yayasan" 
-                     class="collaboration-img mb-3"
-                     style="max-width: 180px; max-height: 100px;">
-                <h4>Yayasan Restu</h4>
-                <p>Strategic Partner</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="collaboration-item">
-                <img src="{{ url_for('static', filename='images/cytron.png') }}" 
-                     alt="Cytron" 
-                     class="collaboration-img mb-3"
-                     style="max-width: 180px; max-height: 100px;">
-                <h4>Cytron</h4>
-                <p>Official Training Partner</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Service Modals -->
+<!-- ======== SERVICE MODALS ======== -->
 
 <!-- STEM CLASS Modal -->
 <div class="modal fade" id="stemModal" tabindex="-1" aria-labelledby="stemModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="stemModalLabel">STEM CLASS - 3D PRINTING & MICROBIT</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header modal-orange">
+                <h5 class="modal-title" id="stemModalLabel"><i class="fas fa-robot me-2"></i> STEM CLASS — 3D PRINTING & MICROBIT</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img src="{{ url_for('static', filename='images/maker stem.jpg') }}" 
-                     alt="STEM Class - 3D Printing & Microbit" 
-                     class="img-fluid rounded mb-4"
-                     style="max-height: 150px;">
+                <img src="{{ url_for('static', filename='images/maker stem.jpg') }}" alt="STEM Class" class="img-fluid rounded mb-4" style="max-height: 150px;">
                 <h4>3D Printing, Microbit & STEM Education</h4>
-                <p>Our STEM classes introduce students to the exciting world of 3D printing technology and Microbit programming. Learn design thinking, CAD modeling, hands-on printing skills, and coding fundamentals.</p>
-                <div class="row text-start">
-                    <div class="col-md-12">
-                        <h6>What You'll Learn:</h6>
-                        <ul>
-                            <li>3D Modeling Basics</li>
-                            <li>3D Printing Techniques & Material Science</li>
-                            <li>Microbit Programming Fundamentals</li>
-                            <li>Electronics & Sensor Integration</li>
-                            <li>Creative Project Development</li>
-                        </ul>
-                    </div>
+                <p>Our STEM classes introduce students to the exciting world of 3D printing technology and Microbit programming.</p>
+                <div class="text-start">
+                    <h6><i class="fas fa-check-circle" style="color: var(--orange-500);"></i> What You'll Learn:</h6>
+                    <ul>
+                        <li>3D Modeling Basics</li>
+                        <li>3D Printing Techniques & Material Science</li>
+                        <li>Microbit Programming Fundamentals</li>
+                        <li>Electronics & Sensor Integration</li>
+                        <li>Creative Project Development</li>
+                    </ul>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('contact') }}" class="btn btn-primary">Enroll Now</a>
+                <a href="{{ url_for('contact') }}" class="btn text-white" style="background: var(--orange-500);">Enroll Now</a>
             </div>
         </div>
     </div>
@@ -145,34 +647,29 @@
 <div class="modal fade" id="trainingModal" tabindex="-1" aria-labelledby="trainingModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="trainingModalLabel">TRAINING - LASER ENGRAVING</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header modal-orange-light">
+                <h5 class="modal-title" id="trainingModalLabel"><i class="fas fa-gem me-2"></i> TRAINING — LASER ENGRAVING</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img src="{{ url_for('static', filename='images/laser engraving.jpg') }}" 
-                     alt="Laser Engraving Training" 
-                     class="img-fluid rounded mb-4"
-                     style="max-height: 150px;">
+                <img src="{{ url_for('static', filename='images/laser engraving.jpg') }}" alt="Laser Engraving" class="img-fluid rounded mb-4" style="max-height: 150px;">
                 <h4>Laser Engraving & Cutting</h4>
-                <p>Master the art of laser technology with our comprehensive training programs. From basic operations to advanced techniques.</p>
-                <div class="row text-start">
-                    <div class="col-md-12">
-                        <h6>Training Includes:</h6>
-                        <ul>
-                            <li>Laser Safety Procedures</li>
-                            <li>Material Selection & Compatibility</li>
-                            <li>Software Operation & Design Preparation</li>
-                            <li>Machine Maintenance & Troubleshooting</li>
-                            <li>Wood Engraving, Acrylic Cutting & Metal Marking</li>
-                            <li>Creating Personalized Items & Products</li>
-                        </ul>
-                    </div>
+                <p>Master the art of laser technology with our comprehensive training programs.</p>
+                <div class="text-start">
+                    <h6><i class="fas fa-check-circle" style="color: var(--orange-400);"></i> Training Includes:</h6>
+                    <ul>
+                        <li>Laser Safety Procedures</li>
+                        <li>Material Selection & Compatibility</li>
+                        <li>Software Operation & Design Preparation</li>
+                        <li>Machine Maintenance & Troubleshooting</li>
+                        <li>Wood Engraving, Acrylic Cutting & Metal Marking</li>
+                        <li>Creating Personalized Items & Products</li>
+                    </ul>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('contact') }}" class="btn btn-primary">Get Training</a>
+                <a href="{{ url_for('contact') }}" class="btn text-white" style="background: var(--orange-400);">Get Training</a>
             </div>
         </div>
     </div>
@@ -182,39 +679,35 @@
 <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="projectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="projectModalLabel">CUSTOMIZED PROJECT SERVICES</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header modal-orange-warm">
+                <h5 class="modal-title" id="projectModalLabel"><i class="fas fa-tools me-2"></i> CUSTOMIZED PROJECT SERVICES</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img src="{{ url_for('static', filename='images/custom.jpeg') }}" 
-                     alt="Customized Projects" 
-                     class="img-fluid rounded mb-4"
-                     style="max-height: 150px;">
+                <img src="{{ url_for('static', filename='images/custom.jpeg') }}" alt="Customized Projects" class="img-fluid rounded mb-4" style="max-height: 150px;">
                 <h4>Tailored Project Solutions</h4>
-                <p>We provide customized project development services to bring your ideas to life with our advanced technology and expertise.</p>
-                
-                <div class="row">
+                <p>We provide customized project development services to bring your ideas to life.</p>
+                <div class="row mt-3">
                     <div class="col-md-4 mb-3">
-                        <div class="card">
+                        <div class="card h-100" style="border-color: var(--orange-200);">
                             <div class="card-body">
-                                <h6>EVENT SHOWCASE</h6>
+                                <h6 style="color: var(--orange-700);">EVENT SHOWCASE</h6>
                                 <p class="small">Interactive displays and demonstrations for your events</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <div class="card">
+                        <div class="card h-100" style="border-color: var(--orange-200);">
                             <div class="card-body">
-                                <h6>UPCYCLE</h6>
+                                <h6 style="color: var(--orange-700);">UPCYCLE</h6>
                                 <p class="small">Transform existing materials into new valuable products</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <div class="card">
+                        <div class="card h-100" style="border-color: var(--orange-200);">
                             <div class="card-body">
-                                <h6>PROJECT CONSULTATION</h6>
+                                <h6 style="color: var(--orange-700);">PROJECT CONSULTATION</h6>
                                 <p class="small">Expert guidance for your technology projects</p>
                             </div>
                         </div>
@@ -223,7 +716,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a href="{{ url_for('contact') }}" class="btn btn-primary">Start Project</a>
+                <a href="{{ url_for('contact') }}" class="btn text-white" style="background: var(--orange-700);">Start Project</a>
             </div>
         </div>
     </div>
@@ -232,20 +725,138 @@
 
 {% block scripts %}
 <script>
-// Add hover effects to service cards
 document.addEventListener('DOMContentLoaded', function() {
-    const serviceCards = document.querySelectorAll('.service-card');
-    
-    serviceCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-10px)';
-            this.style.transition = 'transform 0.3s ease';
+
+    // 1. HERO PARTICLES
+    function createParticles() {
+        const container = document.getElementById('heroParticles');
+        if (!container) return;
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (6 + Math.random() * 8) + 's';
+            p.style.animationDelay = Math.random() * 6 + 's';
+            const size = 2 + Math.random() * 4;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.opacity = 0.2 + Math.random() * 0.3;
+            container.appendChild(p);
+        }
+    }
+    createParticles();
+
+    // 2. ANIMATED COUNTERS
+    function animateCounters() {
+        document.querySelectorAll('.stat-number[data-target]').forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const suffix = counter.getAttribute('data-suffix') || '';
+            const duration = 2000;
+            const startTime = performance.now();
+            function update(t) {
+                const p = Math.min((t - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - p, 3);
+                counter.textContent = Math.round(eased * target) + suffix;
+                if (p < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
         });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
+    }
+
+    const statsBar = document.getElementById('statsBar');
+    let counterDone = false;
+    const statsObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting && !counterDone) { counterDone = true; animateCounters(); } });
+    }, { threshold: 0.5 });
+    if (statsBar) statsObs.observe(statsBar);
+
+    // 3. AJAX: LOAD SERVICES
+    function loadServices() {
+        fetch('/api/services').then(r => r.json()).then(data => {
+            const c = document.getElementById('services-container');
+            if (!data.services || !data.services.length) { renderStaticServices(c); return; }
+            renderServices(c, data.services);
+        }).catch(() => renderStaticServices(document.getElementById('services-container')));
+    }
+
+    function renderServices(container, services) {
+        container.innerHTML = '';
+        services.forEach((s, i) => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-4 fade-in-up';
+            col.style.transitionDelay = (i * 0.15) + 's';
+            col.innerHTML = `
+                <div class="service-card-dynamic" style="--card-accent:${s.color};--card-accent-end:${s.color_end}" data-bs-toggle="modal" data-bs-target="#${s.modal_id}">
+                    <div class="service-icon-wrapper" style="background:${s.bg_color};color:${s.color};"><i class="${s.icon}"></i></div>
+                    <h5>${s.title}</h5>
+                    <ul class="service-items">${s.items.map(x=>'<li>'+x+'</li>').join('')}</ul>
+                    <div class="learn-more">Learn more <i class="fas fa-arrow-right"></i></div>
+                </div>`;
+            container.appendChild(col);
+            requestAnimationFrame(() => requestAnimationFrame(() => col.classList.add('visible')));
         });
+    }
+
+    function renderStaticServices(c) {
+        renderServices(c, [
+            { title:'STEM CLASS', icon:'fas fa-robot fa-2x', items:['3D PRINTING','MICROBIT CLASS'], color:'#ea580c', color_end:'#f97316', bg_color:'rgba(234,88,12,0.1)', modal_id:'stemModal' },
+            { title:'TRAINING', icon:'fas fa-gem fa-2x', items:['LASER ENGRAVING'], color:'#f97316', color_end:'#fb923c', bg_color:'rgba(249,115,22,0.1)', modal_id:'trainingModal' },
+            { title:'CUSTOMIZED PROJECT', icon:'fas fa-tools fa-2x', items:['EVENT SHOWCASE','UPCYCLE','PROJECT CONSULTATION'], color:'#c2410c', color_end:'#ea580c', bg_color:'rgba(194,65,12,0.1)', modal_id:'projectModal' }
+        ]);
+    }
+
+    // 4. AJAX: LOAD COLLABORATIONS
+    function loadCollaborations() {
+        fetch('/api/collaborations').then(r => r.json()).then(data => {
+            const c = document.getElementById('collaborations-container');
+            if (!data.collaborations || !data.collaborations.length) { renderStaticCollabs(c); return; }
+            renderCollabs(c, data.collaborations);
+        }).catch(() => renderStaticCollabs(document.getElementById('collaborations-container')));
+    }
+
+    function renderCollabs(container, collabs) {
+        container.innerHTML = '';
+        collabs.forEach((co, i) => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-4 fade-in-up';
+            col.style.transitionDelay = (i * 0.15) + 's';
+            col.innerHTML = `<div class="collab-card"><img src="${co.logo}" alt="${co.name}" class="collab-logo"><h4>${co.name}</h4><p>${co.description}</p></div>`;
+            container.appendChild(col);
+            requestAnimationFrame(() => requestAnimationFrame(() => col.classList.add('visible')));
+        });
+    }
+
+    function renderStaticCollabs(c) {
+        renderCollabs(c, [
+            { name:'NADI', description:'Teluk Air Tawar', logo:"{{ url_for('static', filename='images/NADI.jpeg') }}" },
+            { name:'Yayasan Restu', description:'Strategic Partner', logo:"{{ url_for('static', filename='images/yayasan restu.png') }}" },
+            { name:'Cytron', description:'Official Training Partner', logo:"{{ url_for('static', filename='images/cytron.png') }}" }
+        ]);
+    }
+
+    // 5. SCROLL REVEAL
+    const revealObs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); revealObs.unobserve(e.target); } });
+    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('.scroll-reveal').forEach(el => revealObs.observe(el));
+
+    // 6. SMOOTH SCROLL
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', function(e) { e.preventDefault(); const t = document.querySelector(this.getAttribute('href')); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); });
     });
+
+    // 7. LOAD CONTENT
+    setTimeout(loadServices, 400);
+    setTimeout(loadCollaborations, 600);
+
+    // 8. LIVE STATS
+    fetch('/api/homepage-stats').then(r=>r.json()).then(data=>{
+        if(data.stats){ const s=document.querySelectorAll('.stat-number[data-target]');
+        if(data.stats.students_trained)s[0].setAttribute('data-target',data.stats.students_trained);
+        if(data.stats.services)s[1].setAttribute('data-target',data.stats.services);
+        if(data.stats.partners)s[2].setAttribute('data-target',data.stats.partners);
+        if(data.stats.years)s[3].setAttribute('data-target',data.stats.years);}
+    }).catch(()=>{});
 });
 </script>
 {% endblock %}

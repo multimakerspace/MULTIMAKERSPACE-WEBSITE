@@ -1,54 +1,1158 @@
 {% extends "base.html" %}
 
-{% block title %}Login - Multimaker Resources{% endblock %}
+{% block title %}Multimaker Resources — Welcome{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Create New Account / Login</h4>
+
+<style>
+/* ======== CSS VARIABLES ======== */
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --white: #ffffff;
+    --cream: #fffcf7;
+    --text-dark: #431407;
+    --text-muted: #a8a29e;
+    --border-light: #fde8d0;
+}
+
+/* ======== PAGE BACKGROUND ======== */
+.login-page {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    position: relative;
+    overflow: hidden;
+    background: var(--cream);
+    background-image: 
+        radial-gradient(circle at 15% 20%, rgba(249,115,22,0.06) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(251,146,60,0.05) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(253,186,116,0.04) 0%, transparent 60%);
+}
+
+/* ======== FLOATING SHAPES (Playful particles) ======== */
+.fun-shapes {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.shape {
+    position: absolute;
+    opacity: 0;
+    animation: shapeFloat linear infinite;
+}
+
+.shape-circle {
+    border-radius: 50%;
+    border: 3px solid;
+}
+
+.shape-square {
+    border-radius: 6px;
+    border: 3px solid;
+    transform: rotate(45deg);
+}
+
+.shape-triangle {
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 20px solid;
+    background: none !important;
+}
+
+.shape-gear {
+    border-radius: 50%;
+    border: 3px dashed;
+}
+
+.shape-plus {
+    position: relative;
+    background: none !important;
+    border: none !important;
+}
+
+.shape-plus::before,
+.shape-plus::after {
+    content: '';
+    position: absolute;
+    background: var(--orange-300);
+    border-radius: 2px;
+}
+
+.shape-plus::before {
+    width: 3px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.shape-plus::after {
+    width: 16px;
+    height: 3px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes shapeFloat {
+    0% {
+        transform: translateY(100vh) rotate(0deg) scale(0.5);
+        opacity: 0;
+    }
+    8% { opacity: 0.5; }
+    50% { opacity: 0.4; }
+    92% { opacity: 0.3; }
+    100% {
+        transform: translateY(-10vh) rotate(360deg) scale(1);
+        opacity: 0;
+    }
+}
+
+/* ======== MAIN CONTAINER ======== */
+.login-wrapper {
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    transform: translateY(25px);
+    animation: wrapperIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s forwards;
+}
+
+@keyframes wrapperIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ======== ROBOT ILLUSTRATION ======== */
+.robot-hero {
+    text-align: center;
+    margin-bottom: -30px;
+    position: relative;
+    z-index: 3;
+}
+
+.robot-hero img {
+    height: 130px;
+    filter: drop-shadow(0 12px 24px rgba(154, 52, 18, 0.15));
+    animation: robotBounce 3s ease-in-out infinite;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.robot-hero img:hover {
+    transform: scale(1.08) rotate(-3deg);
+}
+
+@keyframes robotBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Speech bubble */
+.robot-speech {
+    display: inline-block;
+    background: var(--white);
+    border: 2px solid var(--orange-200);
+    border-radius: 16px;
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--orange-700);
+    margin-bottom: 10px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(249,115,22,0.08);
+    animation: speechPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s both;
+}
+
+.robot-speech::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid var(--white);
+    filter: drop-shadow(0 1px 0 var(--orange-200));
+}
+
+@keyframes speechPop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* ======== LOGIN CARD ======== */
+.login-card {
+    background: var(--white);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(154, 52, 18, 0.08), 0 2px 8px rgba(249, 115, 22, 0.04);
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Top decorative wave */
+.card-wave {
+    height: 6px;
+    background: linear-gradient(90deg, 
+        var(--orange-300) 0%, 
+        var(--orange-400) 25%, 
+        var(--orange-500) 50%, 
+        var(--orange-400) 75%, 
+        var(--orange-300) 100%);
+    background-size: 200% 100%;
+    animation: waveShimmer 3s ease-in-out infinite;
+}
+
+@keyframes waveShimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Card body */
+.card-inner {
+    padding: 36px 32px 28px;
+}
+
+/* ======== WELCOME TEXT ======== */
+.welcome-text {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.welcome-text h2 {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0 0 6px;
+}
+
+.welcome-text h2 .wave-emoji {
+    display: inline-block;
+    animation: waveHand 2s ease-in-out infinite;
+    transform-origin: 70% 70%;
+}
+
+@keyframes waveHand {
+    0%, 100% { transform: rotate(0deg); }
+    15% { transform: rotate(14deg); }
+    30% { transform: rotate(-8deg); }
+    40% { transform: rotate(14deg); }
+    50% { transform: rotate(-4deg); }
+    60% { transform: rotate(10deg); }
+    70% { transform: rotate(0deg); }
+}
+
+.welcome-text p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin: 0;
+}
+
+/* ======== MODE TOGGLE (Login / Register) ======== */
+.mode-toggle {
+    display: flex;
+    background: var(--orange-50);
+    border-radius: 14px;
+    padding: 5px;
+    margin-bottom: 26px;
+    border: 1px solid var(--border-light);
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+.mode-btn.active {
+    background: var(--white);
+    color: var(--orange-600);
+    box-shadow: 0 3px 12px rgba(249, 115, 22, 0.12);
+    transform: scale(1.02);
+}
+
+.mode-btn:not(.active):hover {
+    color: var(--orange-400);
+}
+
+.mode-btn i {
+    margin-right: 6px;
+}
+
+/* ======== FORM PANELS ======== */
+.panel-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.form-panel {
+    transition: all 0.4s ease;
+}
+
+.form-panel.hidden {
+    display: none;
+}
+
+.form-panel.entering {
+    animation: panelEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes panelEnter {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ======== FORM INPUTS ======== */
+.input-group-fun {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.input-group-fun label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--orange-700);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+}
+
+.input-wrap {
+    position: relative;
+}
+
+.input-wrap .input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--orange-300);
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.input-wrap input {
+    width: 100%;
+    padding: 13px 14px 13px 42px;
+    border: 2px solid var(--border-light);
+    border-radius: 12px;
+    font-size: 0.92rem;
+    color: var(--text-dark);
+    background: var(--cream);
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.input-wrap input::placeholder {
+    color: #d1ccc7;
+    font-weight: 400;
+}
+
+.input-wrap input:focus {
+    border-color: var(--orange-400);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.08), 0 2px 8px rgba(249, 115, 22, 0.06);
+}
+
+.input-wrap input:focus ~ .input-icon {
+    color: var(--orange-500);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Validation */
+.input-wrap input.valid { border-color: #34d399; }
+.input-wrap input.valid ~ .input-icon { color: #10b981; }
+.input-wrap input.invalid { border-color: #f87171; }
+.input-wrap input.invalid ~ .input-icon { color: #ef4444; }
+
+.field-msg {
+    font-size: 0.75rem;
+    margin-top: 5px;
+    padding-left: 2px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: all 0.25s;
+}
+
+.field-msg.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.field-msg.error { color: #ef4444; }
+.field-msg.ok { color: #10b981; }
+
+/* Password toggle */
+.pw-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--orange-300);
+    cursor: pointer;
+    font-size: 0.92rem;
+    padding: 4px;
+    z-index: 2;
+    transition: color 0.2s;
+    border-radius: 6px;
+}
+
+.pw-toggle:hover { color: var(--orange-500); }
+
+/* ======== PASSWORD STRENGTH ======== */
+.pw-strength {
+    margin-top: 10px;
+}
+
+.pw-bars {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 4px;
+}
+
+.pw-bar {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: #f5f0eb;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.pw-bar.filled::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 3px;
+    animation: barFill 0.3s ease forwards;
+}
+
+@keyframes barFill {
+    from { transform: scaleX(0); transform-origin: left; }
+    to { transform: scaleX(1); transform-origin: left; }
+}
+
+.pw-bar.filled.s1::after { background: #ef4444; }
+.pw-bar.filled.s2::after { background: var(--orange-400); }
+.pw-bar.filled.s3::after { background: var(--orange-500); }
+.pw-bar.filled.s4::after { background: #22c55e; }
+
+.pw-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-align: right;
+    transition: color 0.3s;
+    min-height: 1em;
+}
+
+/* ======== FORGOT LINK ======== */
+.forgot-row {
+    text-align: right;
+    margin-top: -10px;
+    margin-bottom: 18px;
+}
+
+.forgot-row a {
+    font-size: 0.8rem;
+    color: var(--orange-400);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.forgot-row a:hover { color: var(--orange-600); }
+
+/* ======== SUBMIT BUTTON ======== */
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.3px;
+}
+
+.btn-submit.btn-orange {
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500), var(--orange-600));
+    color: var(--white);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
+}
+
+.btn-submit.btn-orange:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 10px 28px rgba(249, 115, 22, 0.4);
+}
+
+.btn-submit.btn-orange:active {
+    transform: translateY(0) scale(0.99);
+}
+
+.btn-submit:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Button loading */
+.btn-submit .spinner {
+    display: none;
+    width: 20px;
+    height: 20px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: var(--white);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.btn-submit.loading .spinner { display: block; }
+.btn-submit.loading .btn-text { display: none; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Button success state */
+.btn-submit.success {
+    background: linear-gradient(135deg, #34d399, #10b981, #059669) !important;
+}
+
+/* ======== ALERTS ======== */
+.form-alert {
+    padding: 11px 14px;
+    border-radius: 12px;
+    font-size: 0.84rem;
+    font-weight: 500;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: alertBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+@keyframes alertBounce {
+    from { opacity: 0; transform: translateY(-8px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.form-alert.alert-danger {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1.5px solid #fecaca;
+}
+
+.form-alert.alert-success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1.5px solid #a7f3d0;
+}
+
+.form-alert.alert-warning {
+    background: var(--orange-50);
+    color: var(--orange-800);
+    border: 1.5px solid var(--orange-200);
+}
+
+.form-alert .close-alert {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.4;
+    color: inherit;
+    padding: 0 2px;
+    line-height: 1;
+}
+
+.form-alert .close-alert:hover { opacity: 0.8; }
+
+/* ======== FOOTER SWITCH ======== */
+.card-footer-text {
+    text-align: center;
+    padding: 18px 32px;
+    background: var(--orange-50);
+    border-top: 1px solid var(--border-light);
+}
+
+.card-footer-text p {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.card-footer-text a {
+    color: var(--orange-500);
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.card-footer-text a:hover { color: var(--orange-700); text-decoration: underline; }
+
+/* ======== SHAKE ======== */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 480px) {
+    .login-wrapper { max-width: 100%; }
+    .login-card { border-radius: 20px; }
+    .card-inner { padding: 28px 22px 22px; }
+    .robot-hero img { height: 100px; }
+    .card-footer-text { padding: 14px 22px; }
+}
+</style>
+
+<!-- ======== PAGE ======== -->
+<div class="login-page">
+    
+    <!-- Floating playful shapes -->
+    <div class="fun-shapes" id="funShapes"></div>
+
+    <div class="login-wrapper">
+
+        <!-- Robot illustration with speech bubble -->
+        <div class="robot-hero">
+            <div class="robot-speech" id="robotSpeech">Welcome back, maker! 🔧</div>
+            <img src="{{ url_for('static', filename='images/robot.png') }}" alt="MultiMaker Robot" id="robotImg">
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="card-wave"></div>
+            
+            <div class="card-inner">
+                
+                <!-- Welcome text -->
+                <div class="welcome-text">
+                    <h2>Hey there! <span class="wave-emoji">👋</span></h2>
+                    <p id="welcomeSubtext">Sign in to continue your maker journey</p>
+                </div>
+
+                <!-- Mode toggle -->
+                <div class="mode-toggle">
+                    <button class="mode-btn active" id="modeLogin" onclick="switchMode('login')">
+                        <i class="fas fa-sign-in-alt"></i>Login
+                    </button>
+                    <button class="mode-btn" id="modeRegister" onclick="switchMode('register')">
+                        <i class="fas fa-user-plus"></i>Register
+                    </button>
+                </div>
+
+                <!-- Alert container -->
+                <div id="alertBox"></div>
+
+                <!-- Server flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="form-alert alert-{{ category }}">
+                                <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-times-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+                                <span>{{ message }}</span>
+                                <button class="close-alert" onclick="this.parentElement.remove()">&times;</button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Panel container -->
+                <div class="panel-container">
+
+                    <!-- ===== LOGIN PANEL ===== -->
+                    <div class="form-panel" id="panelLogin">
+                        <form id="formLogin" method="POST" action="{{ url_for('login') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <div class="input-group-fun">
+                                <label>Username</label>
+                                <div class="input-wrap">
+                                    <input type="text" id="loginUser" name="username" placeholder="Enter your username" autocomplete="username" required>
+                                    <i class="fas fa-user input-icon"></i>
+                                </div>
+                            </div>
+
+                            <div class="input-group-fun">
+                                <label>Password</label>
+                                <div class="input-wrap">
+                                    <input type="password" id="loginPass" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+                                    <i class="fas fa-lock input-icon"></i>
+                                    <button type="button" class="pw-toggle" onclick="togglePw('loginPass', this)"><i class="fas fa-eye"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="forgot-row">
+                                <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+                            </div>
+
+                            <button type="submit" class="btn-submit btn-orange" id="btnLogin">
+                                <span class="btn-text"><i class="fas fa-rocket"></i> Let's Go!</span>
+                                <span class="spinner"></span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- ===== REGISTER PANEL ===== -->
+                    <div class="form-panel hidden" id="panelRegister">
+                        <form id="formRegister" method="POST" action="{{ url_for('register') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <div class="input-group-fun">
+                                <label>Username</label>
+                                <div class="input-wrap">
+                                    <input type="text" id="regUser" name="username" placeholder="Pick a cool username" autocomplete="username" required minlength="3">
+                                    <i class="fas fa-user-astronaut input-icon"></i>
+                                </div>
+                                <div class="field-msg" id="regUserMsg"></div>
+                            </div>
+
+                            <div class="input-group-fun">
+                                <label>Email</label>
+                                <div class="input-wrap">
+                                    <input type="email" id="regEmail" name="email" placeholder="your@email.com" autocomplete="email" required>
+                                    <i class="fas fa-envelope input-icon"></i>
+                                </div>
+                                <div class="field-msg" id="regEmailMsg"></div>
+                            </div>
+
+                            <div class="input-group-fun">
+                                <label>Full Name</label>
+                                <div class="input-wrap">
+                                    <input type="text" id="regName" name="full_name" placeholder="What should we call you?" autocomplete="name" required>
+                                    <i class="fas fa-id-badge input-icon"></i>
+                                </div>
+                            </div>
+
+                            <div class="input-group-fun">
+                                <label>Password</label>
+                                <div class="input-wrap">
+                                    <input type="password" id="regPass" name="password" placeholder="Make it strong!" autocomplete="new-password" required minlength="4">
+                                    <i class="fas fa-shield-alt input-icon"></i>
+                                    <button type="button" class="pw-toggle" onclick="togglePw('regPass', this)"><i class="fas fa-eye"></i></button>
+                                </div>
+                                <div class="pw-strength">
+                                    <div class="pw-bars">
+                                        <div class="pw-bar" id="b1"></div>
+                                        <div class="pw-bar" id="b2"></div>
+                                        <div class="pw-bar" id="b3"></div>
+                                        <div class="pw-bar" id="b4"></div>
+                                    </div>
+                                    <div class="pw-label" id="pwLabel"></div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-submit btn-orange" id="btnRegister">
+                                <span class="btn-text"><i class="fas fa-star"></i> Join the Makers!</span>
+                                <span class="spinner"></span>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
             </div>
-            <div class="card-body">
-                <!-- Login Form -->
-                <form method="POST" action="{{ url_for('login') }}">
-                    <h5>Login</h5>
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
 
-                <hr>
-
-                <!-- Register Form -->
-                <form method="POST" action="{{ url_for('register') }}">
-                    <h5>Register New Account</h5>
-                    <div class="mb-3">
-                        <label for="reg_username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="reg_username" name="username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="reg_email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="reg_email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="reg_full_name" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="reg_full_name" name="full_name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="reg_password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="reg_password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">Sign Up</button>
-                </form>
+            <!-- Footer -->
+            <div class="card-footer-text" id="footerText">
+                <p>Don't have an account? <a onclick="switchMode('register')">Create one!</a></p>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // =============================================
+    // 1. FLOATING PLAYFUL SHAPES
+    // =============================================
+    (function() {
+        const container = document.getElementById('funShapes');
+        if (!container) return;
+        
+        const types = ['circle', 'square', 'triangle', 'gear', 'plus'];
+        const colors = [
+            'var(--orange-200)', 'var(--orange-300)', 'var(--orange-400)',
+            '#fde68a', '#fed7aa', '#fdba74'
+        ];
+        
+        for (let i = 0; i < 18; i++) {
+            const shape = document.createElement('div');
+            const type = types[Math.floor(Math.random() * types.length)];
+            shape.className = `shape shape-${type}`;
+            
+            const size = 10 + Math.random() * 18;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            shape.style.width = size + 'px';
+            shape.style.height = size + 'px';
+            shape.style.left = Math.random() * 100 + '%';
+            shape.style.borderColor = color;
+            shape.style.animationDuration = (10 + Math.random() * 15) + 's';
+            shape.style.animationDelay = Math.random() * 10 + 's';
+            
+            if (type === 'triangle') {
+                shape.style.borderBottomColor = color;
+            }
+            
+            container.appendChild(shape);
+        }
+    })();
+
+    // =============================================
+    // 2. MODE SWITCHING (Login / Register)
+    // =============================================
+    const speeches = {
+        login: ['Welcome back, maker! 🔧', 'Ready to build? 🚀', 'Let\'s create something! ⚡'],
+        register: ['Join the team! 🎉', 'Welcome aboard! 🌟', 'New maker alert! 🤖']
+    };
+    
+    window.switchMode = function(mode) {
+        const loginPanel = document.getElementById('panelLogin');
+        const regPanel = document.getElementById('panelRegister');
+        const btnLogin = document.getElementById('modeLogin');
+        const btnReg = document.getElementById('modeRegister');
+        const subtext = document.getElementById('welcomeSubtext');
+        const footer = document.getElementById('footerText');
+        const speech = document.getElementById('robotSpeech');
+        
+        document.getElementById('alertBox').innerHTML = '';
+        
+        const phrases = speeches[mode];
+        speech.textContent = phrases[Math.floor(Math.random() * phrases.length)];
+        speech.style.animation = 'none';
+        speech.offsetHeight;
+        speech.style.animation = 'speechPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+        
+        if (mode === 'register') {
+            btnLogin.classList.remove('active');
+            btnReg.classList.add('active');
+            loginPanel.classList.add('hidden');
+            regPanel.classList.remove('hidden');
+            regPanel.classList.add('entering');
+            setTimeout(() => regPanel.classList.remove('entering'), 400);
+            subtext.textContent = 'Create your account to start making';
+            footer.innerHTML = '<p>Already a maker? <a onclick="switchMode(\'login\')">Sign in!</a></p>';
+        } else {
+            btnReg.classList.remove('active');
+            btnLogin.classList.add('active');
+            regPanel.classList.add('hidden');
+            loginPanel.classList.remove('hidden');
+            loginPanel.classList.add('entering');
+            setTimeout(() => loginPanel.classList.remove('entering'), 400);
+            subtext.textContent = 'Sign in to continue your maker journey';
+            footer.innerHTML = '<p>Don\'t have an account? <a onclick="switchMode(\'register\')">Create one!</a></p>';
+        }
+    };
+
+    // =============================================
+    // 3. PASSWORD TOGGLE
+    // =============================================
+    window.togglePw = function(id, btn) {
+        const inp = document.getElementById(id);
+        const ico = btn.querySelector('i');
+        if (inp.type === 'password') { inp.type = 'text'; ico.classList.replace('fa-eye', 'fa-eye-slash'); }
+        else { inp.type = 'password'; ico.classList.replace('fa-eye-slash', 'fa-eye'); }
+    };
+
+    // =============================================
+    // 4. PASSWORD STRENGTH METER
+    // =============================================
+    const regPass = document.getElementById('regPass');
+    if (regPass) {
+        regPass.addEventListener('input', function() {
+            const v = this.value;
+            const bars = ['b1','b2','b3','b4'].map(id => document.getElementById(id));
+            const label = document.getElementById('pwLabel');
+            
+            let score = 0;
+            if (v.length >= 4) score++;
+            if (v.length >= 6) score++;
+            if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+            if (/[0-9]/.test(v) || /[^A-Za-z0-9]/.test(v)) score++;
+            
+            const labels = ['', 'Weak 😟', 'Fair 🙂', 'Good 💪', 'Strong 🔥'];
+            const labelColors = ['', '#ef4444', '#fb923c', '#f97316', '#22c55e'];
+            
+            bars.forEach((b, i) => {
+                b.className = 'pw-bar';
+                if (i < score) {
+                    b.classList.add('filled', 's' + score);
+                }
+            });
+            
+            if (v.length > 0) {
+                label.textContent = labels[score] || 'Too short';
+                label.style.color = labelColors[score] || '#a8a29e';
+            } else {
+                label.textContent = '';
+            }
+        });
+    }
+
+    // =============================================
+    // 5. FIELD VALIDATION
+    // =============================================
+    const regUser = document.getElementById('regUser');
+    if (regUser) {
+        regUser.addEventListener('blur', function() {
+            const v = this.value.trim();
+            const msg = document.getElementById('regUserMsg');
+            if (v.length > 0 && v.length < 3) {
+                this.classList.add('invalid'); this.classList.remove('valid');
+                msg.textContent = 'Too short! Need at least 3 characters'; msg.className = 'field-msg show error';
+            } else if (v.length >= 3) {
+                fetch('/api/check-username?username=' + encodeURIComponent(v))
+                .then(r => r.json())
+                .then(data => {
+                    if (data.available) {
+                        regUser.classList.remove('invalid'); regUser.classList.add('valid');
+                        msg.textContent = 'Nice pick! It\'s available ✓'; msg.className = 'field-msg show ok';
+                    } else {
+                        regUser.classList.add('invalid'); regUser.classList.remove('valid');
+                        msg.textContent = 'Oops, that one\'s taken!'; msg.className = 'field-msg show error';
+                    }
+                })
+                .catch(() => { regUser.classList.add('valid'); msg.className = 'field-msg'; });
+            } else {
+                this.classList.remove('valid', 'invalid'); msg.className = 'field-msg';
+            }
+        });
+    }
+
+    const regEmail = document.getElementById('regEmail');
+    if (regEmail) {
+        regEmail.addEventListener('blur', function() {
+            const v = this.value.trim();
+            const msg = document.getElementById('regEmailMsg');
+            if (v.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+                this.classList.add('invalid'); this.classList.remove('valid');
+                msg.textContent = 'Hmm, that doesn\'t look right'; msg.className = 'field-msg show error';
+            } else if (v.length > 0) {
+                this.classList.remove('invalid'); this.classList.add('valid');
+                msg.className = 'field-msg';
+            } else {
+                this.classList.remove('valid', 'invalid'); msg.className = 'field-msg';
+            }
+        });
+    }
+
+    // =============================================
+    // 6. AJAX FORM SUBMISSION
+    // =============================================
+    function showAlert(msg, type) {
+        const box = document.getElementById('alertBox');
+        const icons = { success: 'fa-check-circle', danger: 'fa-times-circle', warning: 'fa-exclamation-circle' };
+        box.innerHTML = `<div class="form-alert alert-${type}"><i class="fas ${icons[type] || 'fa-info-circle'}"></i><span>${msg}</span><button class="close-alert" onclick="this.parentElement.remove()">&times;</button></div>`;
+        setTimeout(() => {
+            const el = box.querySelector('.form-alert');
+            if (el) { el.style.transition = 'all 0.3s'; el.style.opacity = '0'; el.style.transform = 'translateY(-6px)'; setTimeout(() => el.remove(), 300); }
+        }, 5000);
+    }
+
+    function resetBtn(btn, html) {
+        btn.classList.remove('loading', 'success');
+        btn.disabled = false;
+        btn.innerHTML = html;
+        btn.style.background = '';
+    }
+
+    const loginBtnHtml = '<span class="btn-text"><i class="fas fa-rocket"></i> Let\'s Go!</span><span class="spinner"></span>';
+    const regBtnHtml = '<span class="btn-text"><i class="fas fa-star"></i> Join the Makers!</span><span class="spinner"></span>';
+
+    // Login
+    const formLogin = document.getElementById('formLogin');
+    if (formLogin) {
+        formLogin.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnLogin');
+            const u = document.getElementById('loginUser').value.trim();
+            const p = document.getElementById('loginPass').value;
+            if (!u || !p) { showAlert('Please fill in all fields!', 'warning'); return; }
+
+            btn.classList.add('loading'); btn.disabled = true;
+
+            const formData = new FormData(formLogin);
+            fetch('{{ url_for("login") }}', { method: 'POST', body: formData, redirect: 'follow', credentials: 'same-origin' })
+            .then(r => {
+                const finalUrl = r.url || '';
+                const isBackToLogin = finalUrl.includes('/login');
+                
+                // If redirected to dashboard/admin = real success
+                if (r.redirected && !isBackToLogin) {
+                    btn.classList.remove('loading');
+                    btn.classList.add('success');
+                    btn.innerHTML = '<span class="btn-text"><i class="fas fa-check"></i> Welcome back!</span>';
+                    document.getElementById('robotSpeech').textContent = 'See you inside! 🎉';
+                    setTimeout(() => { window.location.href = r.url; }, 600);
+                    return null;
+                }
+                // Redirected back to login = error (pending approval, etc.)
+                return r.text();
+            })
+            .then(html => {
+                if (html === null) return; // success redirect handled above
+                if (html) {
+                    resetBtn(btn, loginBtnHtml);
+                    // Try to extract flash message from the returned HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const flashEl = doc.querySelector('.form-alert span, .alert span');
+                    const flashMsg = flashEl ? flashEl.textContent : 'Invalid username or password.';
+                    const isWarning = html.includes('alert-warning') || html.includes('pending');
+                    
+                    showAlert(flashMsg, isWarning ? 'warning' : 'danger');
+                    formLogin.style.animation = 'shake 0.4s ease';
+                    document.getElementById('robotSpeech').textContent = isWarning ? 'Almost there! ⏳' : 'Hmm, try again! 🤔';
+                    setTimeout(() => formLogin.style.animation = '', 400);
+                }
+            })
+            .catch(() => { resetBtn(btn, loginBtnHtml); formLogin.submit(); });
+        });
+    }
+
+    // Register
+    const formReg = document.getElementById('formRegister');
+    if (formReg) {
+        formReg.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnRegister');
+            const u = document.getElementById('regUser').value.trim();
+            const em = document.getElementById('regEmail').value.trim();
+            const fn = document.getElementById('regName').value.trim();
+            const pw = document.getElementById('regPass').value;
+
+            if (!u || !em || !fn || !pw) { showAlert('Please fill in all fields!', 'warning'); return; }
+            if (u.length < 3) { showAlert('Username needs at least 3 characters!', 'warning'); return; }
+            if (pw.length < 4) { showAlert('Password needs at least 4 characters!', 'warning'); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { showAlert('Please enter a valid email!', 'warning'); return; }
+
+            btn.classList.add('loading'); btn.disabled = true;
+
+            fetch('{{ url_for("register") }}', { method: 'POST', body: new FormData(formReg), redirect: 'follow' })
+            .then(r => {
+                const finalUrl = r.url || '';
+                const isBackToLogin = finalUrl.includes('/login') || finalUrl.includes('/register');
+                
+                // Both success and error redirect back to login for register
+                // So we need to check the response HTML for flash messages
+                return r.text();
+            })
+            .then(html => {
+                if (html) {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const flashEl = doc.querySelector('.form-alert span, .alert span');
+                    const isSuccess = html.includes('alert-success') || html.includes('Registration successful');
+                    
+                    if (isSuccess) {
+                        btn.classList.remove('loading');
+                        btn.classList.add('success');
+                        btn.innerHTML = '<span class="btn-text"><i class="fas fa-check"></i> You\'re in!</span>';
+                        document.getElementById('robotSpeech').textContent = 'Welcome to the team! 🎉';
+                        showAlert('Account created! Wait for admin approval.', 'success');
+                        formReg.reset();
+                        document.getElementById('pwLabel').textContent = '';
+                        document.querySelectorAll('.pw-bar').forEach(b => b.className = 'pw-bar');
+                        setTimeout(() => { switchMode('login'); resetBtn(btn, regBtnHtml); }, 2500);
+                    } else {
+                        resetBtn(btn, regBtnHtml);
+                        const flashMsg = flashEl ? flashEl.textContent : 'Username or email already exists!';
+                        showAlert(flashMsg, 'danger');
+                        document.getElementById('robotSpeech').textContent = 'That name\'s taken! 😅';
+                        formReg.style.animation = 'shake 0.4s ease';
+                        setTimeout(() => formReg.style.animation = '', 400);
+                    }
+                }
+            })
+            .catch(() => { resetBtn(btn, regBtnHtml); formReg.submit(); });
+        });
+    }
+
+    // =============================================
+    // 7. ROBOT CLICK EASTER EGG
+    // =============================================
+    const robotImg = document.getElementById('robotImg');
+    if (robotImg) {
+        const funPhrases = [
+            'Bleep bloop! 🤖', 'Let\'s make stuff! 🛠️', 'STEM is fun! 🧪',
+            '3D print ALL the things! 🖨️', 'Code. Build. Repeat. 💻',
+            'Creativity loading... ⚡', 'Makers gonna make! 🎨'
+        ];
+        let clickCount = 0;
+        robotImg.addEventListener('click', function() {
+            clickCount++;
+            const speech = document.getElementById('robotSpeech');
+            speech.textContent = funPhrases[clickCount % funPhrases.length];
+            speech.style.animation = 'none';
+            speech.offsetHeight;
+            speech.style.animation = 'speechPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
+        });
+    }
+
+    // =============================================
+    // 8. AUTO-FOCUS & ENTER KEY NAV
+    // =============================================
+    setTimeout(() => { const f = document.getElementById('loginUser'); if (f) f.focus(); }, 700);
+
+    document.querySelectorAll('.input-wrap input').forEach(input => {
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const form = this.closest('form');
+                const inputs = Array.from(form.querySelectorAll('input:not([type="hidden"])'));
+                const idx = inputs.indexOf(this);
+                if (idx < inputs.length - 1) { e.preventDefault(); inputs[idx + 1].focus(); }
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

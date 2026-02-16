@@ -1,78 +1,570 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Multimaker Resources{% endblock %}
+{% block title %}Multimaker Resources — Student Dashboard{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h2>Student Dashboard</h2>
-        <p>Welcome, {{ user.full_name or user.username }}!</p>
+
+<style>
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --white: #ffffff;
+    --cream: #fffcf7;
+    --text-dark: #431407;
+    --text-muted: #78716c;
+    --border-light: #fde8d0;
+}
+
+/* ======== WELCOME BANNER ======== */
+.welcome-banner {
+    background: linear-gradient(135deg, #7c2d12 0%, #c2410c 35%, #ea580c 60%, #f97316 85%, #fb923c 100%);
+    border-radius: 20px;
+    padding: 32px 36px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease 0.1s forwards;
+}
+
+.welcome-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.welcome-banner h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+
+.welcome-banner p {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 0.95rem;
+}
+
+.welcome-banner .welcome-icon {
+    font-size: 2.5rem;
+    opacity: 0.2;
+    position: absolute;
+    right: 36px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ======== QUICK ACTION CARDS ======== */
+.quick-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    padding: 24px;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease forwards;
+}
+
+.quick-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--orange-400), var(--orange-500));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+}
+
+.quick-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(249, 115, 22, 0.1);
+    border-color: var(--orange-200);
+}
+
+.quick-card:hover::before {
+    transform: scaleX(1);
+}
+
+.quick-card .card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 14px;
+    transition: transform 0.3s;
+}
+
+.quick-card:hover .card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.quick-card h5 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+
+.quick-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+}
+
+.btn-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    border: none;
+}
+
+.btn-card-green {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+.btn-card-green:hover { background: #059669; color: var(--white); }
+
+.btn-card-blue {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+.btn-card-blue:hover { background: #2563eb; color: var(--white); }
+
+/* ======== ATTENDANCE ALERT ======== */
+.attendance-alert {
+    background: linear-gradient(135deg, var(--orange-50), var(--orange-100));
+    border: 2px solid var(--orange-200);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease 0.3s forwards;
+}
+
+.attendance-alert .alert-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--orange-400);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    animation: alertPulse 2s ease-in-out infinite;
+}
+
+@keyframes alertPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(249,115,22,0); }
+}
+
+.attendance-alert .alert-content h6 {
+    font-weight: 700;
+    color: var(--orange-800);
+    margin: 0 0 4px;
+    font-size: 0.95rem;
+}
+
+.attendance-alert .alert-content p {
+    font-size: 0.85rem;
+    color: var(--orange-700);
+    margin: 0;
+}
+
+.btn-alert {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--orange-500);
+    color: var(--white);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.3s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-alert:hover {
+    background: var(--orange-600);
+    color: var(--white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249,115,22,0.3);
+}
+
+/* ======== MAIN CONTENT CARDS ======== */
+.dash-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease 0.4s forwards;
+}
+
+.dash-card-header {
+    padding: 18px 24px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dash-card-header h5 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dash-card-header h5 i {
+    color: var(--orange-500);
+}
+
+.dash-card-body {
+    padding: 24px;
+}
+
+/* ======== TABLE STYLING ======== */
+.table-modern {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-modern thead th {
+    background: var(--orange-50);
+    color: var(--orange-800);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--orange-200);
+}
+
+.table-modern tbody tr {
+    transition: background 0.2s;
+}
+
+.table-modern tbody tr:hover {
+    background: var(--orange-50);
+}
+
+.table-modern tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #fef2e8;
+    font-size: 0.9rem;
+    color: #44403c;
+    vertical-align: middle;
+}
+
+.badge-orange {
+    background: var(--orange-100);
+    color: var(--orange-700);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
+/* ======== ACHIEVEMENT CARDS ======== */
+.achievement-item {
+    padding: 14px 0;
+    border-bottom: 1px solid #fef2e8;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.achievement-item:last-child {
+    border-bottom: none;
+}
+
+.achievement-item h6 {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.achievement-item .date-badge {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    background: var(--orange-50);
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+/* ======== EMPTY STATE ======== */
+.empty-state {
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.empty-state i {
+    font-size: 2rem;
+    color: var(--orange-300);
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin: 0;
+}
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 768px) {
+    .welcome-banner { padding: 24px 20px; }
+    .welcome-banner h2 { font-size: 1.3rem; }
+    .welcome-banner .welcome-icon { display: none; }
+    .attendance-alert { flex-direction: column; text-align: center; }
+}
+</style>
+
+<!-- ======== WELCOME BANNER ======== -->
+<div class="welcome-banner">
+    <h2>Welcome back, {{ user.full_name or user.username }}! 👋</h2>
+    <p>Here's your student dashboard — keep building, keep learning!</p>
+    <i class="fas fa-robot welcome-icon"></i>
+</div>
+
+<!-- ======== QUICK ACTION CARDS ======== -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="quick-card" style="animation-delay: 0.15s;">
+            <div class="card-icon" style="background: rgba(16,185,129,0.1); color: #059669;">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <h5>My Payments</h5>
+            <p>View your payment history and receipts.</p>
+            <a href="{{ url_for('student_payments') }}" class="btn-card btn-card-green">
+                <i class="fas fa-cash-register"></i> View Payments
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="quick-card" style="animation-delay: 0.25s;">
+            <div class="card-icon" style="background: rgba(59,130,246,0.1); color: #2563eb;">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <h5>Attendance Calendar</h5>
+            <p>Update your attendance for upcoming classes.</p>
+            <a href="{{ url_for('student_calendar') }}" class="btn-card btn-card-blue">
+                <i class="fas fa-calendar-plus"></i> Go to Calendar
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="row mt-4">
+<!-- ======== ATTENDANCE ALERT ======== -->
+<div class="attendance-alert">
+    <div class="alert-icon">
+        <i class="fas fa-bell"></i>
+    </div>
+    <div class="alert-content flex-grow-1">
+        <h6><i class="fas fa-calendar-check me-1"></i> Attendance Reminder</h6>
+        <p>Please update your attendance calendar for upcoming classes so we can plan accordingly.</p>
+    </div>
+    <a href="{{ url_for('student_calendar') }}" class="btn-alert">
+        <i class="fas fa-arrow-right"></i> Update Now
+    </a>
+</div>
+
+<!-- ======== MAIN CONTENT: SCHEDULE + ACHIEVEMENTS ======== -->
+<div class="row">
     <!-- Class Schedule -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>Class Schedule</h5>
+    <div class="col-lg-8">
+        <div class="dash-card">
+            <div class="dash-card-header">
+                <h5><i class="fas fa-chalkboard-teacher"></i> Class Schedule</h5>
             </div>
-            <div class="card-body">
+            <div class="dash-card-body">
                 {% if classes %}
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table-modern">
                             <thead>
                                 <tr>
                                     <th>Class</th>
-                                    <th>Day</th>
+                                    <th>{% if classes[0].class_date %}Date{% else %}Day{% endif %}</th>
                                     <th>Time</th>
+                                    <th>Duration</th>
                                     <th>Instructor</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for class in classes %}
                                 <tr>
-                                    <td>{{ class.class_name }}</td>
-                                    <td>{{ class.day }}</td>
+                                    <td>
+                                        <strong>{{ class.class_name }}</strong>
+                                        {% if class.admin_notes %}
+                                            <br><small class="text-muted" title="Admin notes">
+                                                <i class="fas fa-sticky-note" style="color: var(--orange-400);"></i> {{ class.admin_notes|truncate(40) }}
+                                            </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if class.class_date %}
+                                            {% set date_parts = class.class_date.split('-') %}
+                                            {% if date_parts|length == 3 %}
+                                                {% set year = date_parts[0]|int %}
+                                                {% set month = date_parts[1]|int %}
+                                                {% set day = date_parts[2]|int %}
+                                                {% set weekday_num = ((year - (14 - month)//12) + year//4 - year//100 + year//400 + (31*(month + 12*((14 - month)//12) - 2))//12 + day) % 7 %}
+                                                {% set weekday_num = (weekday_num + 6) % 7 %}
+                                                {% set weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                                                {% set month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] %}
+                                                <strong style="color: var(--orange-600);">{{ class.class_date }}</strong><br>
+                                                <small class="text-muted">{{ weekday_names[weekday_num] }}</small>
+                                            {% else %}
+                                                {{ class.class_date }}
+                                            {% endif %}
+                                        {% else %}
+                                            {{ class.day }}
+                                        {% endif %}
+                                    </td>
                                     <td>{{ class.time }}</td>
+                                    <td>
+                                        {% if class.duration %}
+                                            <span class="badge-orange">{{ class.duration }}h</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
                                     <td>{{ class.instructor }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                    <div style="background: var(--orange-50); border-radius: 10px; padding: 12px 16px; margin-top: 16px;">
+                        <small style="color: var(--orange-700);">
+                            <i class="fas fa-info-circle" style="color: var(--orange-400);"></i>
+                            <strong>Classes with dates</strong> show specific scheduled dates.
+                            <strong>Classes with days</strong> recur on that day of the week.
+                        </small>
+                    </div>
                 {% else %}
-                    <p>No classes scheduled.</p>
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times d-block"></i>
+                        <p>No classes scheduled yet.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Student Achievements - View Only (Current Student Only) -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5>My Achievements</h5>
+    <!-- Achievements -->
+    <div class="col-lg-4">
+        <div class="dash-card" style="animation-delay: 0.5s;">
+            <div class="dash-card-header">
+                <h5><i class="fas fa-trophy"></i> My Achievements</h5>
             </div>
-            <div class="card-body">
+            <div class="dash-card-body">
                 {% if achievements %}
-                    <div class="list-group">
-                        {% for achievement in achievements %}
-                        <div class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ achievement.achievement }}</h6>
-                                <small>{{ achievement.date_achieved }}</small>
-                            </div>
-                        </div>
-                        {% endfor %}
+                    {% for achievement in achievements %}
+                    <div class="achievement-item">
+                        <h6>{{ achievement.achievement }}</h6>
+                        <span class="date-badge">{{ achievement.date_achieved }}</span>
                     </div>
+                    {% endfor %}
                 {% else %}
-                    <div class="alert alert-info">
-                        <p>No achievements yet. Contact an administrator to add your achievements.</p>
+                    <div class="empty-state">
+                        <i class="fas fa-star d-block"></i>
+                        <p>No achievements yet. Keep learning and they'll come!</p>
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<!-- Force Change Password Modal - UNCHANGED -->
+{% if session.get('must_change_password') == 1 %}
+<div class="modal fade" id="forceChangePasswordModal" tabindex="-1" 
+     data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--orange-400), var(--orange-500)); color: white;">
+                <h5 class="modal-title">🔐 Please Set Your New Password</h5>
+            </div>
+            <form action="{{ url_for('change_password') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <p>Your password was recently reset by admin. Please set a new password to continue.</p>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" 
+                               name="new_password" required minlength="4"
+                               placeholder="Enter your new password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm_password" 
+                               name="confirm_password" required minlength="4"
+                               placeholder="Confirm your new password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn text-white" style="background: var(--orange-500);">Save New Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = new bootstrap.Modal(document.getElementById('forceChangePasswordModal'));
+        modal.show();
+    });
+</script>
+{% endif %}
 {% endblock %}

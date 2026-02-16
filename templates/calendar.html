@@ -1,0 +1,2557 @@
+{% extends "base.html" %}
+
+{% block title %}Multimaker Resources - Class Calendar{% endblock %}
+
+{% block content %}
+<style>
+/* ======== CALENDAR PAGE STYLES ======== */
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --orange-900: #7c2d12;
+    --white: #ffffff;
+    --cream: #fffcf7;
+    --text-dark: #431407;
+    --text-muted-cal: #78716c;
+    --border-light: #fde8d0;
+}
+
+.cal-banner {
+    background: linear-gradient(135deg, var(--orange-900) 0%, var(--orange-700) 40%, var(--orange-600) 70%, var(--orange-500) 100%);
+    border-radius: 20px;
+    padding: 28px 32px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: calFadeUp 0.6s ease 0.1s forwards;
+}
+
+.cal-banner::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.cal-banner h2 { font-size: 1.45rem; font-weight: 800; margin: 0 0 6px; }
+.cal-banner p { margin: 0; opacity: 0.85; font-size: 0.9rem; }
+.cal-banner .banner-icon {
+    font-size: 2.2rem; opacity: 0.15; position: absolute;
+    right: 32px; top: 50%; transform: translateY(-50%);
+}
+
+@keyframes calFadeUp { to { opacity: 1; transform: translateY(0); } }
+
+/* Section Cards */
+.cal-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.cal-card-header {
+    padding: 16px 20px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cal-card-header h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cal-card-header h5 i,
+.cal-card-header h5 .bi { color: var(--orange-500); }
+
+.cal-card-body { padding: 20px; }
+
+/* Navigation Buttons */
+.btn-cal-nav {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 2px solid var(--orange-200);
+    background: var(--white);
+    color: var(--orange-700);
+    font-weight: 600;
+    font-size: 0.82rem;
+    transition: all 0.25s;
+    cursor: pointer;
+}
+
+.btn-cal-nav:hover {
+    background: var(--orange-500);
+    color: var(--white);
+    border-color: var(--orange-500);
+}
+
+.month-label {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+/* Legend */
+.legend-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--orange-50);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.legend-item small { font-size: 0.78rem; color: #57534e; font-weight: 500; }
+
+/* Sidebar Cards */
+.sidebar-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.sidebar-header {
+    padding: 14px 18px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.sidebar-header h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar-header h5 i,
+.sidebar-header h5 .bi { color: var(--orange-500); }
+
+.sidebar-body { padding: 16px 18px; }
+
+/* Browse Alert */
+.browse-alert {
+    background: linear-gradient(135deg, var(--orange-50), var(--orange-100));
+    border: 2px solid var(--orange-200);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+}
+
+.browse-alert i { color: var(--orange-500); }
+.browse-alert strong { color: var(--orange-800); }
+.browse-alert a {
+    color: var(--orange-600);
+    font-weight: 700;
+    text-decoration: underline;
+}
+.browse-alert a:hover { color: var(--orange-800); }
+
+/* Proposals Badge */
+.proposals-badge {
+    background: var(--orange-400);
+    color: var(--white);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+/* History Section */
+.history-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-top: 24px;
+}
+
+.history-header {
+    padding: 16px 20px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.history-header h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.badge-count {
+    background: var(--orange-500);
+    color: var(--white);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.badge-muted {
+    background: #e7e5e4;
+    color: #78716c;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* Bulk Reschedule Card */
+.bulk-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-top: 24px;
+}
+
+.bulk-card .cal-card-header { background: var(--orange-50); }
+
+/* Modal Overrides */
+.modal-header.modal-header-orange {
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
+    color: var(--white);
+    border-bottom: none;
+}
+</style>
+
+<!-- ======== WELCOME BANNER ======== -->
+<div class="cal-banner">
+    <h2>Class Attendance & Rescheduling 📅</h2>
+    <p>Welcome, {{ user.full_name or user.username }}! Select dates to confirm attendance or propose alternatives.</p>
+    <i class="fas fa-calendar-alt banner-icon"></i>
+</div>
+
+<!-- Calendar View -->
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="cal-card">
+            <div class="cal-card-header">
+                <h5><i class="fas fa-calendar-alt"></i> Attendance Calendar</h5>
+                <div>
+                    <button class="btn-cal-nav" onclick="changeMonth(-1)">
+                        <i class="bi bi-chevron-left"></i> Prev
+                    </button>
+                    <span class="mx-2 month-label" id="currentMonth">Loading...</span>
+                    <button class="btn-cal-nav" onclick="changeMonth(1)">
+                        Next <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="cal-card-body">
+                <!-- Calendar Navigation -->
+                <div id="calendar" class="text-center">
+                    <div class="text-muted">Loading calendar...</div>
+                </div>
+                
+                <!-- Legend -->
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#22c55e;"></span>
+                        <small>Confirmed Attendance</small>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#ef4444;"></span>
+                        <small>Cannot Attend</small>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:var(--orange-400);"></span>
+                        <small>Alternative Proposed</small>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#a8a29e;"></span>
+                        <small>No Response</small>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:rgba(59,130,246,0.2); border: 1px solid #3b82f6;"></span>
+                        <small>Class Available</small>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="border: 2.5px solid var(--orange-500); background: transparent;"></div>
+                        <small>Today</small>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: rgba(249,115,22,0.12); border: 1.5px solid var(--orange-400);"></div>
+                        <small>Enrolled</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Class Details Sidebar -->
+    <div class="col-md-4">
+        <div class="sidebar-card">
+            <div class="sidebar-header">
+                <h5><i class="fas fa-info-circle"></i> Class Details</h5>
+            </div>
+            <div class="sidebar-body">
+                <div id="selectedDateInfo" class="text-center text-muted">
+                    <p>Select a date on the calendar to view class details</p>
+                </div>
+                
+                <div id="classDetails" style="display: none;">
+                    <h6 id="selectedDateTitle" class="mb-3"></h6>
+        
+                    <div id="classList">
+                        <!-- Classes will be populated here -->
+                    </div>
+                
+                    <!-- Admin Notes Section -->
+                    <div id="adminNotesSection" style="display: none; margin-top: 20px;">
+                        <hr>
+                        <h6 class="mt-3">
+                            <i class="bi bi-sticky"></i> Admin Notes & Availability:
+                        </h6>
+                        <div id="adminNotes" class="alert alert-info alert-sm">
+                            <!-- Admin notes will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Classmates Section -->
+        <div class="sidebar-card">
+            <div class="sidebar-header">
+                <h5><i class="bi bi-people-fill"></i> Classmates</h5>
+            </div>
+            <div class="sidebar-body">
+                <div id="classmatesList">
+                    <p class="text-muted"><small>Select a class to see who else is enrolled</small></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Browse All Classes Button -->
+        <div class="browse-alert">
+            <i class="bi bi-search"></i> 
+            <strong>Curious about other classes?</strong>
+            <a href="/browse-classes">Browse all available classes</a>
+            and see who's taking what!
+        </div>
+        
+        <!-- Alternative Date Proposals -->
+        <div class="sidebar-card">
+            <div class="sidebar-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <h5 class="mb-0"><i class="bi bi-calendar-plus"></i> Your Proposals</h5>
+                <span class="proposals-badge" id="proposalsCount">0</span>
+            </div>
+            <div class="sidebar-body">
+                <div id="alternativeDatesList">
+                    <p class="text-muted text-center py-3">
+                        <i class="bi bi-inbox"></i><br>
+                        No alternative dates proposed yet.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Attendance Confirmation -->
+<div class="modal fade" id="attendanceModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-header-orange">
+                <h5 class="modal-title" id="modalTitle">
+                    <i class="bi bi-calendar-check me-2"></i>Confirm Attendance
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="attendanceForm" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" id="modalClassId" name="class_id">
+                    <input type="hidden" id="modalClassDate" name="class_date">
+                    <input type="hidden" id="attendanceId" name="attendance_id">
+    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Class Details</label>
+                        <div class="border rounded p-3 bg-light" id="modalClassDetails">
+                            <!-- Details will be populated by JavaScript -->
+                        </div>
+                    </div>
+    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" id="modalDateLabel">Can you attend on this date?</label>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="radio" name="can_attend" 
+                                   id="attendYes" value="1" checked
+                                   onchange="toggleAttendanceOptions(true)">
+                            <label class="form-check-label text-success" for="attendYes">
+                                <i class="bi bi-check-circle me-1"></i> Yes, I will attend
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="can_attend" 
+                                   id="attendNo" value="0"
+                                   onchange="toggleAttendanceOptions(false)">
+                            <label class="form-check-label text-danger" for="attendNo">
+                                <i class="bi bi-x-circle me-1"></i> No, I cannot attend
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="can_attend" 
+                                   id="attendAlternative" value="2"
+                                   onchange="toggleAttendanceOptions(false)">
+                            <label class="form-check-label text-warning" for="attendAlternative">
+                                <i class="bi bi-calendar-plus me-1"></i> Propose alternative date(s)
+                            </label>
+                        </div>
+                    </div>
+    
+                    <!-- Reason for not attending -->
+                    <div class="mb-3" id="reasonContainer" style="display: none;">
+                        <label for="reason" class="form-label fw-bold">Reason for not attending</label>
+                        <textarea class="form-control" id="reason" name="reason" rows="3" 
+                                  placeholder="Please provide a reason for not attending (required)..."></textarea>
+                        <div class="form-text">This helps the instructor plan accordingly.</div>
+                    </div>
+    
+                    <!-- Alternative date selection - PER-CLASS EDITABLE DATES -->
+                    <div class="mb-3" id="alternativeDateContainer" style="display: none;">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-calendar-plus"></i> Propose Alternative Dates
+                        </label>
+                        <div class="text-muted small mb-2">
+                            Select dates from the calendar or add manually. You can <strong>edit any date</strong> after adding it.
+                            The instructor will choose the best option.
+                        </div>
+                        
+                        <!-- Button to open multi-date picker (PRIMARY) -->
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="button" class="btn btn-outline-primary" onclick="openMultiDatePicker()">
+                                <i class="bi bi-calendar-plus me-1"></i> Choose Dates from Calendar
+                            </button>
+                        </div>
+                        
+                        <!-- Quick add single date inline (SECONDARY) -->
+                        <div class="border rounded p-2 bg-light mb-3">
+                            <small class="text-muted d-block mb-2"><i class="bi bi-pencil-square me-1"></i>Or add a date manually:</small>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="date" class="form-control form-control-sm" id="newAltDate" style="max-width: 180px;">
+                                <select class="form-select form-select-sm" id="newAltSession" style="max-width: 170px;">
+                                    <option value="morning">🌅 morning(9am-11am)</option>
+                                    <option value="afternoon">☀️ afternoon(11am-12pm)</option>
+                                    <option value="evening">🌙 evening(2pm-5pm)</option>
+                                </select>
+                                <button type="button" class="btn btn-sm btn-primary" onclick="addAlternativeDateInline()">
+                                    <i class="bi bi-plus-lg"></i> Add
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Selected Dates List - EDITABLE per entry -->
+                        <div id="selectedAlternativeDatesList" class="mb-3">
+                            <div id="noDatesMessage" class="text-muted fst-italic small p-3 border rounded bg-light text-center">
+                                <i class="bi bi-info-circle"></i> No alternative dates selected yet.
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden input to store selected dates with sessions as JSON -->
+                        <input type="hidden" id="alternativeDatesJson" name="alternative_dates_json" value="[]">
+                        <!-- Keep preferred_session for backward compatibility -->
+                        <input type="hidden" id="preferredSessionHidden" name="preferred_session" value="">
+                    </div>
+    
+                    <!-- Additional Remarks -->
+                    <div class="mb-3" id="additionalRemarksContainer" style="display: none;">
+                        <label for="additional_remarks" class="form-label fw-bold">
+                            <i class="bi bi-chat-text"></i> Additional Remarks (Optional)
+                        </label>
+                        <textarea class="form-control" id="additional_remarks" name="additional_remarks" 
+                                  rows="2" placeholder="Any additional notes or special requests..."></textarea>
+                        <div class="form-text">
+                            This information will help the instructor better accommodate your request.
+                        </div>
+                    </div>
+    
+                    <div class="mb-3">
+                        <label for="submitted_by" class="form-label fw-bold">Submitted by</label>
+                        <select class="form-select" id="submitted_by" name="submitted_by">
+                            <option value="parent">Parent/Guardian</option>
+                            <option value="student">Student</option>
+                        </select>
+                    </div>
+                    
+                    <div class="modal-footer px-0 pb-0 gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg px-4" style="font-weight: 700;">
+                            <i class="bi bi-check-circle me-2"></i>Confirm & Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Alternative Date Details -->
+<div class="modal fade" id="alternativeDateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Alternative Date Proposal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="alternativeDateDetails">
+                    <!-- Details will be populated by JavaScript -->
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Multi-Date Picker Modal -->
+<div class="modal fade" id="multiDatePickerModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-header-orange">
+                <h5 class="modal-title"><i class="bi bi-calendar-check me-2"></i> Select Available Dates</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="pickerClassInfo" class="alert alert-info py-2 mb-3">
+                    <i class="bi bi-info-circle me-1"></i> Proposing alternative dates for: <strong id="pickerClassName">—</strong>
+                </div>
+                <p class="text-muted small mb-3">Click on dates when you are available. You can select multiple dates with different session times. The instructor will choose the best option.</p>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="changePickerMonth(-1)">
+                        <i class="bi bi-chevron-left"></i> Previous
+                    </button>
+                    <span id="pickerCurrentMonth" class="fw-bold">Loading...</span>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="changePickerMonth(1)">
+                        Next <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div id="multiDatePickerCalendar" class="calendar-container" style="min-height: 300px;"></div>
+                
+                <div class="mt-4 p-3 bg-light rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="bi bi-check2-circle"></i> Selected Dates:</h6>
+                        <span id="selectedCount" class="badge bg-primary">0 selected</span>
+                    </div>
+                    <div id="selectedDatesSummary" class="mt-2">
+                        <span class="text-muted">No dates selected yet</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="confirmSelectedDates()">
+                    <i class="bi bi-check-lg me-1"></i> Confirm Selection
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance History -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="history-card">
+            <div class="history-header">
+                <h5>
+                    <i class="bi bi-clock-history me-2" style="color: var(--orange-500);"></i>Attendance History
+                </h5>
+                <div>
+                    <span class="badge-muted me-2">Last 50 records</span>
+                    <span class="badge-count" id="historyCount">{{ attendance_history|length if attendance_history else 0 }}</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if attendance_history and attendance_history|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 12%">Date</th>
+                                    <th style="width: 15%">Class</th>
+                                    <th style="width: 8%">Time</th>
+                                    <th style="width: 7%">Duration</th>
+                                    <th style="width: 10%">Status</th>
+                                    <th style="width: 15%">Alternative Proposals</th>
+                                    <th style="width: 9%">Approval</th>
+                                    <th style="width: 14%">Rejection Reason</th>
+                                    <th style="width: 10%">Submitted</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_history %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ record.class_date }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ record.class_name }}</div>
+                                        <small class="text-muted">
+                                            <i class="bi bi-person"></i> {{ record.submitted_by|title if record.submitted_by else 'Parent' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="bi bi-clock"></i> {{ record.time or record.class_time or 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if record.duration and record.duration > 0 %}
+                                            <span class="badge bg-info bg-opacity-10 text-info border border-info">
+                                                {{ record.duration }}h
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.can_attend == 1 %}
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2">
+                                                <i class="bi bi-check-circle me-1"></i> Attending
+                                            </span>
+                                        {% elif record.can_attend == 2 %}
+                                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-3 py-2">
+                                                <i class="bi bi-calendar-plus me-1"></i> Alternative
+                                            </span>
+                                        {% elif record.can_attend == 0 %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2">
+                                                <i class="bi bi-x-circle me-1"></i> Not Attending
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2">
+                                                <i class="bi bi-question-circle me-1"></i> No Response
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.can_attend == 2 %}
+                                            {% if record.proposals and record.proposals|length > 0 %}
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100" 
+                                                            type="button" data-bs-toggle="dropdown">
+                                                        <i class="bi bi-calendar-check me-1"></i>
+                                                        {{ record.proposals|length }} Date{% if record.proposals|length > 1 %}s{% endif %}
+                                                    </button>
+                                                    <ul class="dropdown-menu p-2" style="min-width: 280px;">
+                                                        {% for proposal in record.proposals %}
+                                                            <li class="mb-1">
+                                                                <div class="d-flex justify-content-between align-items-center p-2 rounded
+                                                                        {% if proposal.status == 'selected' %}bg-success bg-opacity-10
+                                                                        {% elif proposal.status == 'rejected' %}bg-danger bg-opacity-10
+                                                                        {% else %}bg-warning bg-opacity-10{% endif %}">
+                                                                    <span class="fw-bold">{{ proposal.date }}</span>
+                                                                    <span>
+                                                                        {% if proposal.status == 'selected' %}
+                                                                            <span class="badge bg-success">Selected</span>
+                                                                        {% elif proposal.status == 'rejected' %}
+                                                                            <span class="badge bg-danger">Rejected</span>
+                                                                        {% else %}
+                                                                            <span class="badge bg-warning">Pending</span>
+                                                                        {% endif %}
+                                                                    </span>
+                                                                </div>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% elif record.alternative_date %}
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info p-2">
+                                                        {{ record.alternative_date }}
+                                                    </span>
+                                                    <span class="badge bg-warning ms-1">Pending</span>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.can_attend == 2 %}
+                                            {% if record.admin_approval == 1 %}
+                                                <div class="text-success">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                    <span class="ms-1">Approved</span>
+                                                </div>
+                                            {% elif record.admin_approval == 0 %}
+                                                <div class="text-danger">
+                                                    <i class="bi bi-x-circle-fill"></i>
+                                                    <span class="ms-1">Rejected</span>
+                                                </div>
+                                            {% else %}
+                                                <div class="text-warning">
+                                                    <i class="bi bi-clock-fill"></i>
+                                                    <span class="ms-1">Pending</span>
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.can_attend == 2 %}
+                                            {# Show per-proposal rejection reasons if available #}
+                                            {% if record.proposals and record.proposals|length > 0 %}
+                                                {% set ns = namespace(has_reason=false) %}
+                                                {% for rp in record.proposals %}
+                                                    {% if rp.status == 'rejected' and rp.rejection_reason %}
+                                                        {% set ns.has_reason = true %}
+                                                        <small class="text-danger d-block mb-1">
+                                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger me-1">{{ rp.date }}</span>
+                                                            {{ rp.rejection_reason }}
+                                                        </small>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {# Fallback to attendance-level rejection_reason #}
+                                                {% if not ns.has_reason and record.rejection_reason %}
+                                                    <small class="text-danger">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>{{ record.rejection_reason }}
+                                                    </small>
+                                                {% elif not ns.has_reason %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            {% elif record.rejection_reason %}
+                                                <small class="text-danger">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>{{ record.rejection_reason }}
+                                                </small>
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="badge bg-info bg-opacity-10 text-info border border-info align-self-start">
+                                                {{ record.submitted_by|title if record.submitted_by else 'Parent' }}
+                                            </span>
+                                            {% if record.created_at %}
+                                                <small class="text-muted mt-1">
+                                                    {{ record.created_at[:10] if record.created_at else '' }}
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox display-4 text-muted"></i>
+                        <p class="text-muted mt-3 mb-0">No attendance history found.</p>
+                        <p class="text-muted small">Your attendance records will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Need Multiple Changes -->
+<div class="bulk-card">
+    <div class="cal-card-header">
+        <h5><i class="fas fa-sync-alt" style="color: var(--orange-500);"></i> Need Multiple Changes?</h5>
+    </div>
+    <div class="cal-card-body">
+        <p>If you need to reschedule multiple classes or have complex scheduling needs, please contact the instructor directly.</p>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="openBulkRescheduleModal()" style="border-radius: 10px;">
+                <i class="bi bi-calendar-week"></i> Request Bulk Reschedule
+            </button>
+            <a href="mailto:instructor@multimaker.com" class="btn btn-outline-secondary" style="border-radius: 10px;">
+                <i class="bi bi-envelope"></i> Contact Instructor
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden data storage -->
+<div id="calendar-data" 
+     data-classes='{{ classes|tojson|safe if classes else "[]" }}'
+     data-attendance='{{ attendance_history|tojson|safe if attendance_history else "[]" }}'
+     data-today='{{ today if today else "" }}'
+     data-enrolled-class-ids='{{ user_class_ids|tojson|safe if user_class_ids else "[]" }}'
+     style="display: none;">
+</div>
+
+<!-- Additional Modals Container -->
+<div id="modalContainer"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* Calendar styling - Orange Theme */
+.calendar { width: 100%; }
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: var(--orange-50);
+    padding: 10px 0;
+    font-weight: 700;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--orange-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 10px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    padding: 10px 0;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    min-height: 60px;
+    border: 2px solid var(--orange-100);
+    background-color: white;
+    padding: 5px;
+}
+
+.calendar-day:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 16px rgba(249,115,22,0.12);
+    border-color: var(--orange-300);
+}
+
+.calendar-day.empty {
+    background-color: transparent;
+    cursor: default;
+    border: none;
+}
+
+.calendar-day.empty:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.calendar-day.today {
+    border: 2.5px solid var(--orange-500);
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+}
+
+.calendar-day.selected {
+    border: 2.5px solid #22c55e;
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+}
+
+.calendar-day.enrolled {
+    background-color: rgba(249, 115, 22, 0.08);
+    border-color: var(--orange-300);
+}
+
+.calendar-day.enrolled .calendar-day-number {
+    font-weight: bold;
+    color: var(--orange-600);
+}
+
+.calendar-day.has-class { background-color: #fff7ed; }
+.calendar-day.attending { background-color: #dcfce7; }
+.calendar-day.not-attending { background-color: #fee2e2; }
+.calendar-day.alternative { background-color: #fff7ed; border-color: var(--orange-300); }
+
+.calendar-day.past-date { opacity: 0.45; cursor: not-allowed; }
+.calendar-day.past-date:hover { transform: none; box-shadow: none; }
+
+.calendar-day-number {
+    font-size: 1em;
+    font-weight: bold;
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    color: var(--text-dark);
+}
+
+.calendar-day-status {
+    font-size: 0.72em;
+    margin-top: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.calendar-day-classes {
+    font-size: 0.6em;
+    margin-top: 25px;
+    text-align: center;
+}
+
+.class-badge {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 1px;
+}
+
+.class-badge.python { background-color: #3776ab; }
+.class-badge.web { background-color: #f06529; }
+.class-badge.printing { background-color: #6f42c1; }
+.class-badge.robotics { background-color: #20c997; }
+.class-badge.art { background-color: #fd7e14; }
+
+.alert-sm { padding: 0.5rem 0.75rem; margin-bottom: 0; }
+
+/* Calendar grid for picker */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    padding: 10px 0;
+}
+
+.picker-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.25s;
+    border: 2px solid var(--orange-100);
+    background-color: white;
+}
+
+.picker-day.selectable { cursor: pointer; }
+
+.picker-day.selectable:hover {
+    background-color: var(--orange-50);
+    border-color: var(--orange-300);
+    transform: scale(1.05);
+}
+
+.picker-day.selected {
+    background-color: var(--orange-500) !important;
+    color: white !important;
+    border-color: var(--orange-600) !important;
+}
+
+.picker-day.past-date { opacity: 0.5; cursor: not-allowed; }
+.picker-day.past-date:hover { transform: none; }
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
+
+.card .btn { margin-right: 0.5rem; }
+.card .btn:last-child { margin-right: 0; }
+
+#classList .card {
+    transition: all 0.2s;
+    border-radius: 12px;
+    border: 2px solid var(--orange-100);
+}
+
+#classList .card:hover {
+    box-shadow: 0 4px 12px rgba(249,115,22,0.08);
+    border-color: var(--orange-300);
+}
+
+.status-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    border-radius: 12px;
+}
+
+.status-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(249,115,22,0.08);
+    border-color: var(--orange-200);
+}
+
+.status-card.selected {
+    border-color: #22c55e;
+    background-color: #f0fdf4;
+}
+
+.status-card .status-icon { transition: all 0.3s ease; }
+.status-card:hover .status-icon { transform: scale(1.1); }
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-600));
+}
+
+.icon-box {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.date-badge {
+    background-color: var(--orange-100);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--orange-800);
+}
+
+.date-badge .remove-date { cursor: pointer; color: #dc3545; }
+.date-badge .remove-date:hover { color: #bd2130; }
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.status-card.selected .status-icon { animation: pulse 0.5s ease; }
+</style>
+
+<script>
+// ============ GLOBAL VARIABLES ============
+// Each entry: { date: "2026-02-20", session: "morning" }
+let selectedAlternativeDates = [];
+let currentAttendanceId = null;
+let currentClassForAlternative = null;
+let pickerCurrentDate = new Date();
+
+// Helper to get just the date strings from selectedAlternativeDates
+function getSelectedDateStrings() {
+    return selectedAlternativeDates.map(function(item) {
+        return (typeof item === 'string') ? item : item.date;
+    });
+}
+
+// Helper to find entry by date
+function findEntryByDate(dateStr) {
+    for (var i = 0; i < selectedAlternativeDates.length; i++) {
+        var item = selectedAlternativeDates[i];
+        if ((typeof item === 'string' && item === dateStr) || 
+            (typeof item === 'object' && item.date === dateStr)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// These will be set by getCalendarData
+var classSchedule = [];
+var attendanceData = [];
+var todayStr = '';
+var enrolledClassIds = [];
+
+// Current date tracking
+let currentDate = new Date();
+let selectedDate = null;
+
+// ============ DATA INITIALIZATION ============
+function getCalendarData() {
+    var dataElement = document.getElementById('calendar-data');
+    
+    if (!dataElement) {
+        console.error('Calendar data element not found');
+        return { 
+            classes: [], 
+            attendance: [], 
+            today: new Date().toISOString().split('T')[0],
+            enrolledClassIds: []
+        };
+    }
+    
+    try {
+        var classesStr = dataElement.dataset.classes || '[]';
+        var attendanceStr = dataElement.dataset.attendance || '[]';
+        var today = dataElement.dataset.today || new Date().toISOString().split('T')[0];
+        var enrolledIdsStr = dataElement.dataset.enrolledClassIds || '[]';
+        
+        var classes = [];
+        var attendance = [];
+        var enrolledIds = [];
+        
+        try { classes = JSON.parse(classesStr); } catch(e) { console.error('Error parsing classes:', e); }
+        try { attendance = JSON.parse(attendanceStr); } catch(e) { console.error('Error parsing attendance:', e); }
+        try { enrolledIds = JSON.parse(enrolledIdsStr); } catch(e) { console.error('Error parsing enrolled IDs:', e); }
+        
+        // Ensure arrays
+        if (!Array.isArray(classes)) classes = [];
+        if (!Array.isArray(attendance)) attendance = [];
+        if (!Array.isArray(enrolledIds)) enrolledIds = [];
+        
+        console.log('Raw classes from server:', classes.length);
+        console.log('Raw attendance from server:', attendance.length);
+        console.log('Enrolled class IDs:', enrolledIds);
+        
+        // Convert IDs to numbers for comparison
+        classes.forEach(function(cls) {
+            cls.id = parseInt(cls.id);
+            // Handle duration which may be stored as a string (e.g., "1", "1.5", "2h")
+            var dur = cls.duration;
+            if (typeof dur === 'string') {
+                dur = parseFloat(dur) || 1;
+            }
+            cls.duration = dur || 1;
+        });
+        
+        attendance.forEach(function(record) {
+            record.class_id = parseInt(record.class_id);
+            record.can_attend = parseInt(record.can_attend);
+        });
+        
+        return { 
+            classes: classes, 
+            attendance: attendance, 
+            today: today,
+            enrolledClassIds: enrolledIds.map(function(id) { return parseInt(id); })
+        };
+    } catch (error) {
+        console.error('Error parsing calendar data:', error);
+        return { 
+            classes: [], 
+            attendance: [], 
+            today: new Date().toISOString().split('T')[0],
+            enrolledClassIds: []
+        };
+    }
+}
+
+// Initialize data
+var calendarData = getCalendarData();
+classSchedule = calendarData.classes;
+attendanceData = calendarData.attendance;
+todayStr = calendarData.today;
+enrolledClassIds = calendarData.enrolledClassIds;
+
+console.log('=== CALENDAR INITIALIZATION ===');
+console.log('Class schedule loaded:', classSchedule.length, 'classes');
+console.log('Attendance data loaded:', attendanceData.length, 'records');
+console.log('Enrolled in classes:', enrolledClassIds.length);
+console.log('Today:', todayStr);
+
+// Make available globally
+window.classSchedule = classSchedule;
+window.attendanceData = attendanceData;
+window.todayStr = todayStr;
+window.enrolledClassIds = enrolledClassIds;
+
+// ============ DOCUMENT READY ============
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded - initializing calendar');
+    
+    // Show flash message from AJAX submission (if any)
+    var flashMsg = sessionStorage.getItem('attendanceFlash');
+    if (flashMsg) {
+        sessionStorage.removeItem('attendanceFlash');
+        var alertDiv = document.createElement('div');
+        alertDiv.className = 'flash-alert alert alert-dismissible fade show';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = '<i class="fas fa-check-circle" style="color: #22c55e;"></i> ' + flashMsg + 
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        // Insert into the base.html flash area (above content block)
+        var contentWrap = document.querySelector('.content-wrap');
+        if (contentWrap) {
+            contentWrap.insertBefore(alertDiv, contentWrap.firstChild);
+        }
+    }
+    
+    // Check if we have class data
+    if (classSchedule.length === 0) {
+        console.warn('No class data found! Make sure classes are being passed from the server.');
+    }
+    
+    renderCalendar();
+    updateCurrentMonthDisplay();
+    markPastDates();
+    
+    // Handle form submission
+    var attendanceForm = document.getElementById('attendanceForm');
+    if (attendanceForm) {
+        attendanceForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            return submitAttendanceForm(this);
+        });
+    }
+    
+    // Debug: Test if we can find classes
+    setTimeout(function() {
+        var classesToday = getClassesForDate(todayStr);
+        console.log('Classes today (' + todayStr + '):', classesToday.length);
+        debugCalendarData();
+    }, 500);
+});
+
+// ============ DEBUG FUNCTIONS ============
+function debugCalendarData() {
+    console.log('=== CALENDAR DEBUG INFO ===');
+    console.log('Class Schedule:');
+    classSchedule.forEach(function(cls, index) {
+        console.log(`  ${index + 1}. ${cls.class_name} - ${cls.class_date} - ${cls.time} (ID: ${cls.id})`);
+    });
+    
+    console.log('Unique dates with classes:');
+    var uniqueDates = [];
+    classSchedule.forEach(function(cls) {
+        if (cls.class_date && !uniqueDates.includes(cls.class_date)) {
+            uniqueDates.push(cls.class_date);
+        }
+    });
+    console.log(uniqueDates);
+    
+    // Check if any classes are in current month
+    var year = currentDate.getFullYear();
+    var month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    var monthStr = year + '-' + month;
+    
+    var classesThisMonth = classSchedule.filter(function(cls) {
+        return cls.class_date && cls.class_date.startsWith(monthStr);
+    });
+    
+    console.log(`Classes in ${monthStr}:`, classesThisMonth.length);
+    console.log('Enrolled class IDs:', enrolledClassIds);
+    
+    return {
+        total: classSchedule.length,
+        uniqueDates: uniqueDates,
+        thisMonth: classesThisMonth.length,
+        enrolled: enrolledClassIds.length
+    };
+}
+
+// ============ CALENDAR FUNCTIONS ============
+function renderCalendar() {
+    var calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
+    
+    var year = currentDate.getFullYear();
+    var month = currentDate.getMonth();
+    
+    var firstDay = new Date(year, month, 1);
+    var lastDay = new Date(year, month + 1, 0);
+    var totalDays = lastDay.getDate();
+    var startingDay = firstDay.getDay();
+    
+    var calendarHTML = '<div class="calendar">' +
+                      '<div class="calendar-weekdays">' +
+                      '<div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>' +
+                      '</div><div class="calendar-days">';
+    
+    // Add empty cells for days before the first day of month
+    for (var i = 0; i < startingDay; i++) {
+        calendarHTML += '<div class="calendar-day empty"></div>';
+    }
+    
+    // Add days of the month
+    for (var day = 1; day <= totalDays; day++) {
+        var date = new Date(year, month, day);
+        var dateStr = formatDate(date);
+        var isToday = dateStr === todayStr;
+        
+        // Get classes for this date
+        var classesOnDate = getClassesForDate(dateStr);
+        var hasClasses = classesOnDate && classesOnDate.length > 0;
+        
+        // Check if user is enrolled in any class on this date
+        var isEnrolledInAny = false;
+        if (hasClasses) {
+            isEnrolledInAny = classesOnDate.some(function(cls) {
+                return enrolledClassIds.includes(cls.id);
+            });
+        }
+        
+        // Determine CSS classes
+        var dayClasses = 'calendar-day';
+        if (isToday) dayClasses += ' today';
+        if (hasClasses) dayClasses += ' has-class';
+        if (isEnrolledInAny) dayClasses += ' enrolled';
+        
+        // Create class badges HTML
+        var classBadges = '';
+        if (hasClasses) {
+            classesOnDate.forEach(function(cls) {
+                var isEnrolled = enrolledClassIds.includes(cls.id);
+                var classColor = getClassColor(cls.class_name);
+                classBadges += '<span class="class-badge ' + classColor + '" ' +
+                              'title="' + escapeHtml(cls.class_name) + 
+                              (isEnrolled ? ' (You are enrolled)' : '') + '"></span>';
+            });
+        }
+        
+        var onClickHandler = "selectDate('" + dateStr + "')";
+        
+        calendarHTML += '<div class="' + dayClasses + '" data-date="' + dateStr + '" onclick="' + onClickHandler + '">' +
+                       '<div class="calendar-day-number">' + day + '</div>' +
+                       (hasClasses ? '<div class="calendar-day-classes">' + classBadges + '</div>' : '') +
+                       (isEnrolledInAny ? '<div class="calendar-day-status" style="color: #0d6efd;"><small>Enrolled</small></div>' : '') +
+                       '</div>';
+    }
+    
+    calendarHTML += '</div></div>';
+    
+    calendarEl.innerHTML = calendarHTML;
+    
+    // Mark past dates
+    markPastDates();
+    
+    // If a date is selected, highlight it
+    if (selectedDate) {
+        highlightSelectedDate();
+    }
+}
+
+function changeMonth(direction) {
+    currentDate.setMonth(currentDate.getMonth() + direction);
+    renderCalendar();
+    updateCurrentMonthDisplay();
+    markPastDates();
+}
+
+function updateCurrentMonthDisplay() {
+    var monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                     'July', 'August', 'September', 'October', 'November', 'December'];
+    var monthEl = document.getElementById('currentMonth');
+    if (monthEl) {
+        monthEl.textContent = monthNames[currentDate.getMonth()] + ' ' + currentDate.getFullYear();
+    }
+}
+
+function selectDate(dateStr) {
+    console.log('Date selected:', dateStr);
+    selectedDate = dateStr;
+    
+    // Remove previous selection
+    document.querySelectorAll('.calendar-day').forEach(function(el) {
+        el.classList.remove('selected');
+    });
+    
+    // Add selection to clicked date
+    var selectedEl = document.querySelector('[data-date="' + dateStr + '"]');
+    if (selectedEl) {
+        selectedEl.classList.add('selected');
+    }
+    
+    // Get classes for this date
+    var classesOnDate = getClassesForDate(dateStr);
+    
+    if (classesOnDate.length === 0) {
+        // No classes - show message
+        updateDateDetails(dateStr);
+        return;
+    }
+    
+    // Filter classes user is enrolled in
+    var enrolledClasses = classesOnDate.filter(function(cls) {
+        return enrolledClassIds.includes(parseInt(cls.id));
+    });
+    
+    if (enrolledClasses.length === 0) {
+        // User not enrolled in any classes on this date - show details with enroll buttons
+        updateDateDetails(dateStr);
+        return;
+    }
+    
+    if (enrolledClasses.length === 1) {
+        // Single enrolled class - open modal directly
+        var cls = enrolledClasses[0];
+        openAttendanceModal(
+            cls.id, 
+            dateStr, 
+            cls.class_name, 
+            cls.time || 'TBD', 
+            cls.instructor || 'N/A', 
+            cls.class_date || dateStr, 
+            cls.duration || 1
+        );
+    } else {
+        // Multiple enrolled classes - show class selection modal
+        showClassSelectionModal(enrolledClasses, dateStr);
+    }
+}
+function showClassSelectionModal(classes, dateStr) {
+    // Create a simple modal to select which class to confirm attendance for
+    var modalHTML = `
+        <div class="modal fade" id="classSelectionModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Select Class for ${formatDateDisplay(dateStr)}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You have multiple classes on this date. Please select which class to confirm attendance for:</p>
+                        <div class="list-group">
+    `;
+    
+    classes.forEach(function(cls) {
+        modalHTML += `
+            <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                    onclick="openAttendanceModal(${cls.id}, '${dateStr}', '${escapeHtml(cls.class_name).replace(/'/g, "\\'")}', '${escapeHtml(cls.time || 'TBD').replace(/'/g, "\\'")}', '${escapeHtml(cls.instructor || 'N/A').replace(/'/g, "\\'")}', '${cls.class_date || dateStr}', ${cls.duration || 1}); document.getElementById('classSelectionModal').querySelector('.btn-close').click();">
+                <div>
+                    <strong>${escapeHtml(cls.class_name)}</strong><br>
+                    <small>${escapeHtml(cls.time || 'TBD')} • ${escapeHtml(cls.instructor || 'N/A')}</small>
+                </div>
+                <span class="badge bg-primary rounded-pill">Select</span>
+            </button>
+        `;
+    });
+    
+    modalHTML += `
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    var existingModal = document.getElementById('classSelectionModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Show modal
+    var modal = new bootstrap.Modal(document.getElementById('classSelectionModal'));
+    modal.show();
+}
+function markPastDates() {
+    var today = parseDate(todayStr);
+    today.setHours(0, 0, 0, 0);
+    
+    document.querySelectorAll('.calendar-day[data-date]').forEach(function(el) {
+        var dateStr = el.dataset.date;
+        if (dateStr) {
+            var date = parseDate(dateStr);
+            date.setHours(0, 0, 0, 0);
+            
+            if (date < today) {
+                el.classList.add('past-date');
+            } else {
+                el.classList.remove('past-date');
+            }
+        }
+    });
+}
+
+function highlightSelectedDate() {
+    if (!selectedDate) return;
+    var selectedEl = document.querySelector('[data-date="' + selectedDate + '"]');
+    if (selectedEl) {
+        selectedEl.classList.add('selected');
+    }
+}
+
+// ============ CLASS DETAILS SIDEBAR ============
+function updateDateDetails(dateStr) {
+    console.log('Updating details for date:', dateStr);
+    
+    var dateInfoEl = document.getElementById('selectedDateInfo');
+    var detailsEl = document.getElementById('classDetails');
+    var dateTitleEl = document.getElementById('selectedDateTitle');
+    var classListEl = document.getElementById('classList');
+    
+    // Format date for display
+    var dateDisplay = formatDateDisplay(dateStr);
+    dateTitleEl.textContent = dateDisplay;
+    
+    // Get ALL classes scheduled for this date
+    var allClassesOnDate = getClassesForDate(dateStr);
+    console.log('Classes on this date:', allClassesOnDate);
+    
+    if (!allClassesOnDate || allClassesOnDate.length === 0) {
+        dateInfoEl.style.display = 'block';
+        detailsEl.style.display = 'none';
+        dateInfoEl.innerHTML = '<div class="alert alert-info"><i class="bi bi-calendar-x"></i> No classes scheduled for ' + dateDisplay + '</div>';
+        return;
+    }
+    
+    dateInfoEl.style.display = 'none';
+    detailsEl.style.display = 'block';
+    
+    // Populate class list
+    classListEl.innerHTML = '';
+    
+    allClassesOnDate.forEach(function(cls) {
+        // Check if current user is enrolled in this class
+        var isUserEnrolled = enrolledClassIds.includes(parseInt(cls.id));
+        
+        // Get attendance status for this class
+        var attendanceStatus = getAttendanceStatusForClass(dateStr, cls.id);
+        var actionText = 'Confirm';
+        var statusBadge = '';
+        
+        if (attendanceStatus === 'attending') {
+            statusBadge = '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Confirmed</span>';
+            actionText = 'Update';
+        } else if (attendanceStatus === 'not-attending') {
+            statusBadge = '<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Cannot Attend</span>';
+            actionText = 'Update';
+        } else if (attendanceStatus === 'alternative') {
+            statusBadge = '<span class="badge bg-warning"><i class="bi bi-calendar-plus"></i> Alternative Proposed</span>';
+            actionText = 'Update';
+        } else if (isUserEnrolled) {
+            statusBadge = '<span class="badge bg-secondary"><i class="bi bi-question-circle"></i> No Response</span>';
+            actionText = 'Confirm';
+        } else {
+            statusBadge = '<span class="badge bg-info"><i class="bi bi-eye"></i> Not Enrolled</span>';
+        }
+        
+        // Build class display
+        var durationText = cls.duration ? ' • ' + cls.duration + ' hour(s)' : '';
+        var instructorText = cls.instructor ? '<br><i class="bi bi-person"></i> ' + escapeHtml(cls.instructor) : '';
+        var locationText = cls.location ? '<br><i class="bi bi-geo-alt"></i> ' + escapeHtml(cls.location) : '';
+        
+        // Escape values for onclick
+        var classNameSafe = escapeHtml(cls.class_name).replace(/'/g, "\\'");
+        var timeSafe = escapeHtml(cls.time || 'TBD').replace(/'/g, "\\'");
+        var instructorSafe = escapeHtml(cls.instructor || 'N/A').replace(/'/g, "\\'");
+        var classDateSafe = cls.class_date || dateStr;
+        var durationSafe = cls.duration || 1;
+        
+        var classHTML = 
+            '<div class="card mb-3 ' + (isUserEnrolled ? 'border-primary' : 'border-secondary') + '">' +
+            '<div class="card-body">' +
+            '<h6 class="card-title"><i class="bi bi-book me-2"></i>' + escapeHtml(cls.class_name) + '</h6>' +
+            '<div class="d-flex justify-content-between align-items-start mb-2">' +
+            '<div>' +
+            '<p class="card-text mb-1" style="font-size: 0.9rem;">' +
+            '<i class="bi bi-clock"></i> ' + escapeHtml(cls.time || 'TBD') + durationText +
+            instructorText +
+            locationText +
+            '</p>' +
+            '</div>' +
+            '<div>' + statusBadge + '</div>' +
+            '</div>';
+        
+        // Only show attendance button if user is enrolled
+        if (isUserEnrolled) {
+            classHTML += 
+                '<button class="btn btn-sm ' + (attendanceStatus ? 'btn-outline-primary' : 'btn-primary') + ' mt-2" ' +
+                'onclick="openAttendanceModal(' + cls.id + ', \'' + dateStr + '\', \'' + classNameSafe + '\', \'' + timeSafe + '\', \'' + instructorSafe + '\', \'' + classDateSafe + '\', ' + durationSafe + ')">' +
+                '<i class="bi bi-calendar-check me-1"></i>' + actionText + ' Attendance</button>';
+        } else {
+            classHTML += 
+                '<a href="/enroll/' + cls.id + '" class="btn btn-sm btn-outline-success mt-2">' +
+                '<i class="bi bi-plus-circle"></i> Enroll in this Class</a>';
+        }
+        
+        // Always show class details link
+        classHTML += 
+            '<a href="/class-details/' + cls.id + '" class="btn btn-sm btn-outline-info mt-2 ms-2">' +
+            '<i class="bi bi-info-circle"></i> Details</a>' +
+            '</div></div>';
+        
+        classListEl.innerHTML += classHTML;
+    });
+    
+    // Update classmates list
+    updateClassmatesList();
+}
+
+// ============ ATTENDANCE STATUS FUNCTIONS ============
+function getAttendanceStatusForClass(dateStr, classId) {
+    if (!attendanceData || !Array.isArray(attendanceData)) return null;
+    
+    var record = attendanceData.find(function(record) {
+        return record.class_date === dateStr && parseInt(record.class_id) === parseInt(classId);
+    });
+    
+    if (!record) return null;
+    if (record.can_attend === 1) return 'attending';
+    if (record.can_attend === 2) return 'alternative';
+    if (record.can_attend === 0) return 'not-attending';
+    return null;
+}
+
+function getExistingAttendance(classId, dateStr) {
+    if (!attendanceData || !Array.isArray(attendanceData)) return null;
+    
+    return attendanceData.find(function(record) {
+        return record.class_date === dateStr && parseInt(record.class_id) === parseInt(classId);
+    });
+}
+
+// ============ ATTENDANCE MODAL FUNCTIONS ============
+function openAttendanceModal(classId, dateStr, className, classTime, instructor, classDate, duration) {
+    console.log('Opening attendance modal for class:', classId);
+    
+    // Store current class info globally
+    currentClassForAlternative = { 
+        id: parseInt(classId), 
+        name: className, 
+        date: classDate, 
+        time: classTime, 
+        duration: duration 
+    };
+    
+    // Set modal title and fields
+    document.getElementById('modalTitle').textContent = 'Confirm Attendance: ' + className;
+    document.getElementById('modalClassId').value = classId;
+    document.getElementById('modalClassDate').value = dateStr;
+    document.getElementById('modalDateLabel').textContent = 'Can you attend on ' + formatDateDisplay(dateStr) + '?';
+    
+    // Format duration display
+    var durationDisplay = duration ? duration + ' hour(s)' : 'N/A';
+    
+    // Populate class details
+    document.getElementById('modalClassDetails').innerHTML = 
+        '<p class="mb-1"><strong>Class:</strong> ' + escapeHtml(className) + '</p>' +
+        '<p class="mb-1"><strong>Scheduled Date:</strong> ' + formatDateDisplay(dateStr) + '</p>' +
+        '<p class="mb-1"><strong>Time:</strong> ' + escapeHtml(classTime) + '</p>' +
+        '<p class="mb-1"><strong>Duration:</strong> ' + durationDisplay + '</p>' +
+        '<p class="mb-0"><strong>Instructor:</strong> ' + escapeHtml(instructor) + '</p>';
+    
+    // Reset form
+    resetAttendanceForm();
+    
+    // Check if there's an existing attendance record
+    var existingRecord = getExistingAttendance(parseInt(classId), dateStr);
+    console.log('Existing attendance record:', existingRecord);
+    
+    if (existingRecord) {
+        document.getElementById('attendanceId').value = existingRecord.id || '';
+        
+        // Set the radio button based on existing record
+        if (existingRecord.can_attend === 0) {
+            document.getElementById('attendNo').checked = true;
+            document.getElementById('reasonContainer').style.display = 'block';
+            document.getElementById('reason').value = existingRecord.reason || '';
+            toggleAttendanceOptions(false);
+        } else if (existingRecord.can_attend === 2) {
+            document.getElementById('attendAlternative').checked = true;
+            document.getElementById('reasonContainer').style.display = 'block';
+            document.getElementById('alternativeDateContainer').style.display = 'block';
+            document.getElementById('reason').value = existingRecord.reason || '';
+            
+            // Load existing proposals with per-date sessions
+            if (existingRecord.proposals && existingRecord.proposals.length > 0) {
+                selectedAlternativeDates = existingRecord.proposals.map(function(p) { 
+                    return { date: p.date, session: p.session || 'morning' }; 
+                });
+            } else if (existingRecord.alternative_date) {
+                selectedAlternativeDates = [{ date: existingRecord.alternative_date, session: 'morning' }];
+            }
+            
+            syncDatesJson();
+            updateSelectedDatesDisplay();
+            
+            toggleAttendanceOptions(false);
+        }
+        
+        if (existingRecord.submitted_by) {
+            document.getElementById('submitted_by').value = existingRecord.submitted_by;
+        }
+    } else {
+        // No existing record, create one via API
+        fetch('/get-or-create-attendance/' + classId + '/' + dateStr)
+            .then(function(response) {
+                if (!response.ok) throw new Error('Failed to get/create attendance record');
+                return response.json();
+            })
+            .then(function(data) {
+                console.log('Created/get attendance record:', data);
+                if (data.id) {
+                    document.getElementById('attendanceId').value = data.id;
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+            });
+    }
+    
+    // Show the modal
+    var modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
+    modal.show();
+}
+
+function resetAttendanceForm() {
+    // Reset radio buttons
+    document.getElementById('attendYes').checked = true;
+    
+    // Hide all conditional sections
+    document.getElementById('reasonContainer').style.display = 'none';
+    document.getElementById('alternativeDateContainer').style.display = 'none';
+    document.getElementById('additionalRemarksContainer').style.display = 'none';
+    
+    // Clear form fields
+    document.getElementById('reason').value = '';
+    document.getElementById('additional_remarks').value = '';
+    
+    // Reset alternative dates
+    selectedAlternativeDates = [];
+    document.getElementById('alternativeDatesJson').value = '[]';
+    updateSelectedDatesDisplay();
+    
+    // Reset submitted by
+    document.getElementById('submitted_by').value = 'parent';
+    
+    // Set min date on the inline date picker to today
+    var newAltDate = document.getElementById('newAltDate');
+    if (newAltDate) {
+        newAltDate.value = '';
+        newAltDate.min = todayStr;
+    }
+    var newAltSession = document.getElementById('newAltSession');
+    if (newAltSession) {
+        newAltSession.value = 'morning';
+    }
+}
+
+function toggleAttendanceOptions(canAttend) {
+    var reasonContainer = document.getElementById('reasonContainer');
+    var alternativeDateContainer = document.getElementById('alternativeDateContainer');
+    var additionalRemarksContainer = document.getElementById('additionalRemarksContainer');
+    var reasonInput = document.getElementById('reason');
+    var attendAlternative = document.getElementById('attendAlternative');
+    
+    if (!canAttend) {
+        // User selected "No" or "Propose alternative date"
+        reasonContainer.style.display = 'block';
+        reasonInput.required = true;
+        
+        if (attendAlternative.checked) {
+            // User selected "Propose alternative date"
+            alternativeDateContainer.style.display = 'block';
+            additionalRemarksContainer.style.display = 'block';
+        } else {
+            // User selected "No" (cannot attend)
+            alternativeDateContainer.style.display = 'none';
+            additionalRemarksContainer.style.display = 'none';
+        }
+    } else {
+        // User selected "Yes" (will attend)
+        reasonContainer.style.display = 'none';
+        alternativeDateContainer.style.display = 'none';
+        additionalRemarksContainer.style.display = 'none';
+        reasonInput.required = false;
+    }
+}
+
+function submitAttendanceForm(form) {
+    console.log('=== ATTENDANCE FORM SUBMISSION ===');
+    
+    var attendanceId = document.getElementById('attendanceId').value;
+    console.log('Attendance ID:', attendanceId);
+    
+    if (!attendanceId) {
+        alert('Error: Attendance record not found. Please close and reopen the modal.');
+        return false;
+    }
+    
+    var canAttendElement = document.querySelector('input[name="can_attend"]:checked');
+    if (!canAttendElement) {
+        alert('Please select Yes, No, or Propose Alternative Date.');
+        return false;
+    }
+    
+    var canAttend = canAttendElement.value;
+    console.log('Can attend:', canAttend);
+    
+    // Validation
+    if (canAttend === '0') {
+        var reason = document.getElementById('reason').value.trim();
+        if (!reason) {
+            alert('Please provide a reason for not attending.');
+            return false;
+        }
+    } else if (canAttend === '2') {
+        var reason = document.getElementById('reason').value.trim();
+        if (!reason) {
+            alert('Please provide a reason for proposing alternative dates.');
+            return false;
+        }
+        if (selectedAlternativeDates.length === 0) {
+            alert('Please select at least one alternative date.');
+            return false;
+        }
+    }
+    
+    // Disable submit button
+    var submitBtn = form.querySelector('button[type="submit"]');
+    var originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+    
+    // Prepare form data
+    var formData = new FormData(form);
+    
+    if (canAttend === '2') {
+        formData.set('alternative_dates_json', JSON.stringify(selectedAlternativeDates));
+    } else {
+        formData.set('alternative_dates_json', '[]');
+        formData.set('preferred_session', '');
+    }
+    
+    console.log('Submitting with data:', {
+        attendanceId: attendanceId,
+        canAttend: canAttend,
+        alternativeDates: selectedAlternativeDates
+    });
+    
+    // Submit via fetch
+    fetch('/edit_attendance/' + attendanceId, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(function(response) {
+        if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('Submission success:', data);
+        
+        // Close modal
+        var modal = bootstrap.Modal.getInstance(document.getElementById('attendanceModal'));
+        if (modal) modal.hide();
+        
+        // Store success message for display after reload
+        sessionStorage.setItem('attendanceFlash', data.message || 'Attendance updated successfully!');
+        
+        // Reload page to reflect changes
+        window.location.reload();
+    })
+    .catch(function(error) {
+        console.error('Error submitting attendance:', error);
+        alert('Error submitting attendance. Please try again.');
+        
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    });
+    
+    return false;
+}
+
+// ============ MULTI-DATE PICKER FUNCTIONS ============
+function openMultiDatePicker() {
+    console.log('Opening multi-date picker for class:', currentClassForAlternative);
+    
+    var modal = document.getElementById('multiDatePickerModal');
+    if (!modal) {
+        console.error('Multi-date picker modal not found');
+        return;
+    }
+    
+    // Show which class we're proposing dates for
+    var classNameEl = document.getElementById('pickerClassName');
+    if (classNameEl && currentClassForAlternative) {
+        classNameEl.textContent = currentClassForAlternative.name;
+    }
+    
+    // Reset picker date to current month
+    pickerCurrentDate = new Date();
+    renderMultiDatePicker();
+    
+    var modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+}
+
+function renderMultiDatePicker() {
+    var calendarEl = document.getElementById('multiDatePickerCalendar');
+    if (!calendarEl) {
+        console.error('Calendar element not found');
+        return;
+    }
+    
+    var year = pickerCurrentDate.getFullYear();
+    var month = pickerCurrentDate.getMonth();
+    
+    var firstDay = new Date(year, month, 1);
+    var lastDay = new Date(year, month + 1, 0);
+    var totalDays = lastDay.getDate();
+    var startingDay = firstDay.getDay();
+    
+    var html = '<div class="calendar-grid">';
+    
+    // Weekday headers
+    var weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    weekdays.forEach(function(day) {
+        html += '<div style="text-align: center; font-weight: bold; padding: 8px; background-color: #e9ecef;">' + day + '</div>';
+    });
+    
+    // Empty cells
+    for (var i = 0; i < startingDay; i++) {
+        html += '<div style="aspect-ratio: 1; background-color: transparent;"></div>';
+    }
+    
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Current class being rescheduled
+    var currentClassName = currentClassForAlternative ? currentClassForAlternative.name : '';
+    var currentClassId = currentClassForAlternative ? currentClassForAlternative.id : 0;
+    
+    // Days of the month
+    for (var day = 1; day <= totalDays; day++) {
+        var date = new Date(year, month, day);
+        var dateStr = formatDate(date);
+        var isPast = date < today;
+        var isSelected = findEntryByDate(dateStr) !== -1;
+        
+        // Check if this date has other classes scheduled
+        var classesOnThisDate = getClassesForDate(dateStr);
+        var otherClasses = classesOnThisDate.filter(function(cls) {
+            return parseInt(cls.id) !== currentClassId;
+        });
+        var hasSameClass = classesOnThisDate.some(function(cls) {
+            return parseInt(cls.id) === currentClassId;
+        });
+        
+        var bgColor = '#fff';
+        var textColor = 'inherit';
+        var borderColor = '#dee2e6';
+        var cursor = 'pointer';
+        var extraContent = '<span style="font-size:0.7em; margin-top:2px;">Available</span>';
+        
+        if (isPast) {
+            bgColor = '#e9ecef';
+            textColor = '#6c757d';
+            borderColor = '#ced4da';
+            cursor = 'not-allowed';
+            extraContent = '<span style="font-size:0.7em; margin-top:2px; color:#6c757d;">Past</span>';
+        } else if (hasSameClass) {
+            // This is the original class date — mark it differently
+            bgColor = '#fff3cd';
+            borderColor = '#ffc107';
+            extraContent = '<span style="font-size:0.6em; margin-top:1px; color:#856404;">Original</span>';
+        } else if (otherClasses.length > 0) {
+            // Other classes are on this date — show class names
+            var classNames = otherClasses.map(function(c) { return c.class_name; }).join(', ');
+            borderColor = '#0dcaf0';
+            extraContent = '<span style="font-size:0.55em; margin-top:1px; color:#0d6efd; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="' + escapeHtml(classNames) + '">' + escapeHtml(otherClasses[0].class_name.substring(0, 10)) + '</span>';
+        }
+        
+        if (isSelected) {
+            bgColor = '#198754';
+            textColor = 'white';
+            borderColor = '#0d6efd';
+            extraContent = '<span style="font-size:0.7em; margin-top:2px;">Selected ✓</span>';
+        }
+        
+        var clickHandler = !isPast ? "toggleDateSelection('" + dateStr + "', this)" : '';
+        
+        html += '<div style="aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border:2px solid ' + borderColor + '; border-radius:4px; background-color:' + bgColor + '; color:' + textColor + '; cursor:' + cursor + '; position:relative; padding:3px;" onclick="' + clickHandler + '" data-date="' + dateStr + '">' +
+            '<span style="font-size:1.1em; font-weight:' + (isSelected ? 'bold' : 'normal') + ';">' + day + '</span>' +
+            extraContent +
+        '</div>';
+    }
+    
+    html += '</div>';
+    
+    // Add legend
+    html += '<div class="d-flex flex-wrap gap-3 mt-3 px-2 small">';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;background:#fff;border:2px solid #dee2e6;border-radius:2px;vertical-align:middle;"></span> Available</span>';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;background:#198754;border:2px solid #0d6efd;border-radius:2px;vertical-align:middle;"></span> Selected</span>';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;background:#fff3cd;border:2px solid #ffc107;border-radius:2px;vertical-align:middle;"></span> Original class date</span>';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;background:#fff;border:2px solid #0dcaf0;border-radius:2px;vertical-align:middle;"></span> Has other class</span>';
+    html += '</div>';
+    
+    calendarEl.innerHTML = html;
+    
+    // Update month display
+    var monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                     'July', 'August', 'September', 'October', 'November', 'December'];
+    var monthEl = document.getElementById('pickerCurrentMonth');
+    if (monthEl) {
+        monthEl.textContent = monthNames[month] + ' ' + year;
+    }
+    
+    updateSelectedSummary();
+}
+
+function toggleDateSelection(dateStr, element) {
+    console.log('Toggling date:', dateStr);
+    
+    var index = findEntryByDate(dateStr);
+    
+    if (index === -1) {
+        // Add date with default session
+        selectedAlternativeDates.push({ date: dateStr, session: 'morning' });
+        element.style.backgroundColor = '#198754';
+        element.style.color = 'white';
+        element.style.borderColor = '#0d6efd';
+        element.innerHTML = '<span style="font-size:1.1em; font-weight:bold;">' + dateStr.split('-')[2] + '</span><span style="font-size:0.7em; margin-top:2px;">Selected</span>';
+    } else {
+        // Remove date
+        selectedAlternativeDates.splice(index, 1);
+        element.style.backgroundColor = '#fff';
+        element.style.color = 'inherit';
+        element.style.borderColor = '#dee2e6';
+        element.innerHTML = '<span style="font-size:1.1em;">' + dateStr.split('-')[2] + '</span><span style="font-size:0.7em; margin-top:2px;">Available</span>';
+    }
+    
+    updateSelectedSummary();
+    syncDatesJson();
+}
+
+function updateSelectedSummary() {
+    var summaryEl = document.getElementById('selectedDatesSummary');
+    var countEl = document.getElementById('selectedCount');
+    
+    if (!summaryEl || !countEl) {
+        console.log('Summary elements not found');
+        return;
+    }
+    
+    countEl.textContent = selectedAlternativeDates.length + ' selected';
+    
+    if (selectedAlternativeDates.length === 0) {
+        summaryEl.innerHTML = '<span class="text-muted">No dates selected yet</span>';
+    } else {
+        var html = '<div class="d-flex flex-wrap gap-2 mt-2">';
+        var sortedEntries = selectedAlternativeDates.slice().sort(function(a, b) {
+            var dateA = (typeof a === 'string') ? a : a.date;
+            var dateB = (typeof b === 'string') ? b : b.date;
+            return dateA.localeCompare(dateB);
+        });
+        
+        sortedEntries.forEach(function(entry) {
+            var dateStr = (typeof entry === 'string') ? entry : entry.date;
+            var displayDate = new Date(dateStr).toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            html += '<span class="badge bg-primary p-2" style="font-size:0.9em;">' +
+                displayDate + 
+                ' <span class="ms-1" onclick="removeSelectedDate(\'' + dateStr + '\')" style="cursor:pointer;">&times;</span>' +
+            '</span>';
+        });
+        
+        html += '</div>';
+        summaryEl.innerHTML = html;
+    }
+}
+
+function removeSelectedDate(dateStr) {
+    console.log('Removing date:', dateStr);
+    
+    var index = findEntryByDate(dateStr);
+    if (index !== -1) {
+        selectedAlternativeDates.splice(index, 1);
+        
+        var dateElement = document.querySelector('[data-date="' + dateStr + '"]');
+        if (dateElement) {
+            dateElement.style.backgroundColor = '#fff';
+            dateElement.style.color = 'inherit';
+            dateElement.style.borderColor = '#dee2e6';
+            dateElement.innerHTML = '<span style="font-size:1.1em;">' + dateStr.split('-')[2] + '</span><span style="font-size:0.7em; margin-top:2px;">Available</span>';
+        }
+        
+        updateSelectedSummary();
+        syncDatesJson();
+        updateSelectedDatesDisplay();
+    }
+}
+
+function confirmSelectedDates() {
+    console.log('Confirming selected dates:', selectedAlternativeDates);
+    
+    if (selectedAlternativeDates.length === 0) {
+        alert('Please select at least one alternative date.');
+        return;
+    }
+    
+    selectedAlternativeDates.sort(function(a, b) {
+        var dateA = (typeof a === 'string') ? a : a.date;
+        var dateB = (typeof b === 'string') ? b : b.date;
+        return dateA.localeCompare(dateB);
+    });
+    syncDatesJson();
+    updateSelectedDatesDisplay();
+    
+    var modal = bootstrap.Modal.getInstance(document.getElementById('multiDatePickerModal'));
+    if (modal) modal.hide();
+}
+
+function changePickerMonth(direction) {
+    pickerCurrentDate.setMonth(pickerCurrentDate.getMonth() + direction);
+    renderMultiDatePicker();
+}
+
+function updateSelectedDatesDisplay() {
+    console.log('Updating selected dates display:', selectedAlternativeDates);
+    
+    var listEl = document.getElementById('selectedAlternativeDatesList');
+    var noDatesMsg = document.getElementById('noDatesMessage');
+    
+    if (!listEl) {
+        console.error('Selected dates display elements not found');
+        return;
+    }
+    
+    if (selectedAlternativeDates.length === 0) {
+        listEl.innerHTML = '<div id="noDatesMessage" class="text-muted fst-italic small p-3 border rounded bg-light text-center"><i class="bi bi-info-circle"></i> No alternative dates selected yet.</div>';
+        syncDatesJson();
+        return;
+    }
+    
+    var html = '<div class="mb-2 d-flex justify-content-between align-items-center">';
+    html += '<span class="badge bg-info"><i class="bi bi-calendar-check me-1"></i>' + selectedAlternativeDates.length + ' Date' + (selectedAlternativeDates.length > 1 ? 's' : '') + ' Selected</span>';
+    html += '<small class="text-muted"><i class="bi bi-pencil"></i> Click date to edit</small>';
+    html += '</div>';
+    
+    selectedAlternativeDates.forEach(function(entry, index) {
+        var dateStr = (typeof entry === 'string') ? entry : entry.date;
+        var session = (typeof entry === 'object' && entry.session) ? entry.session : 'morning';
+        
+        // Normalize to object format
+        if (typeof entry === 'string') {
+            selectedAlternativeDates[index] = { date: entry, session: 'morning' };
+        }
+        
+        var displayDate = '';
+        try {
+            displayDate = parseDate(dateStr).toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+        } catch(e) {
+            displayDate = dateStr;
+        }
+        
+        html += '<div class="p-2 mb-2 border rounded bg-white shadow-sm">';
+        html += '  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">';
+        html += '    <div class="d-flex align-items-center gap-2">';
+        html += '      <span class="badge bg-primary bg-opacity-75 p-2" style="font-size:0.8em; min-width:28px; text-align:center;">' + (index + 1) + '</span>';
+        html += '      <span class="fw-bold small">' + displayDate + '</span>';
+        html += '    </div>';
+        html += '    <div class="d-flex align-items-center gap-2">';
+        // Editable date input per entry
+        html += '      <input type="date" class="form-control form-control-sm" style="width:150px;" value="' + dateStr + '" min="' + todayStr + '" onchange="updateDateValue(' + index + ', this.value)" title="Change this date">';
+        // Editable session per entry
+        html += '      <select class="form-select form-select-sm" style="width:auto; min-width:140px;" onchange="updateDateSession(' + index + ', this.value)">';
+        html += '        <option value="morning"' + (session === 'morning' ? ' selected' : '') + '>🌅 morning(9am-11am)</option>';
+        html += '        <option value="afternoon"' + (session === 'afternoon' ? ' selected' : '') + '>☀️ afternoon(11am-12pm)</option>';
+        html += '        <option value="evening"' + (session === 'evening' ? ' selected' : '') + '>🌙 evening(2pm-5pm)</option>';
+        html += '      </select>';
+        html += '      <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeDateFromList(\'' + dateStr + '\', ' + index + ')" title="Remove this date">';
+        html += '        <i class="bi bi-trash"></i>';
+        html += '      </button>';
+        html += '    </div>';
+        html += '  </div>';
+        html += '</div>';
+    });
+    
+    html += '<div class="text-muted small mt-1"><i class="bi bi-info-circle"></i> You can edit the date and preferred session for each entry. The instructor will select the best option.</div>';
+    listEl.innerHTML = html;
+    
+    syncDatesJson();
+}
+
+// NEW: Add alternative date from the inline date picker
+function addAlternativeDateInline() {
+    var dateInput = document.getElementById('newAltDate');
+    var sessionInput = document.getElementById('newAltSession');
+    
+    if (!dateInput || !dateInput.value) {
+        alert('Please select a date first.');
+        return;
+    }
+    
+    var dateStr = dateInput.value;
+    var session = sessionInput ? sessionInput.value : 'morning(9AM-11AM)';
+    
+    // Validate: no past dates
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var selectedDate = parseDate(dateStr);
+    if (selectedDate < today) {
+        alert('Cannot select a past date. Please choose a future date.');
+        return;
+    }
+    
+    // Check for duplicate
+    if (findEntryByDate(dateStr) !== -1) {
+        alert('This date is already in your list. You can edit its session using the dropdown.');
+        return;
+    }
+    
+    // Add the date
+    selectedAlternativeDates.push({ date: dateStr, session: session });
+    
+    // Clear the input
+    dateInput.value = '';
+    sessionInput.value = 'morning(9AM-11AM)(9AM-11AM)';
+    
+    // Update displays
+    updateSelectedDatesDisplay();
+    updateSelectedSummary();
+    
+    console.log('Added alternative date inline:', dateStr, session);
+}
+
+// NEW: Update a date value when user edits via the inline date input
+function updateDateValue(index, newDate) {
+    if (index >= 0 && index < selectedAlternativeDates.length) {
+        if (!newDate) return;
+        
+        // Validate: no past dates
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        var selectedDt = parseDate(newDate);
+        if (selectedDt < today) {
+            alert('Cannot select a past date.');
+            updateSelectedDatesDisplay(); // re-render to reset
+            return;
+        }
+        
+        // Check duplicate (excluding current index)
+        for (var i = 0; i < selectedAlternativeDates.length; i++) {
+            if (i === index) continue;
+            var existingDate = (typeof selectedAlternativeDates[i] === 'string') ? selectedAlternativeDates[i] : selectedAlternativeDates[i].date;
+            if (existingDate === newDate) {
+                alert('This date is already in your list.');
+                updateSelectedDatesDisplay(); // re-render to reset
+                return;
+            }
+        }
+        
+        var oldEntry = selectedAlternativeDates[index];
+        var session = (typeof oldEntry === 'object') ? (oldEntry.session || 'morning') : 'morning';
+        selectedAlternativeDates[index] = { date: newDate, session: session };
+        
+        syncDatesJson();
+        updateSelectedDatesDisplay();
+        console.log('Updated date at index', index, 'to', newDate);
+    }
+}
+
+function updateDateSession(index, session) {
+    if (index >= 0 && index < selectedAlternativeDates.length) {
+        if (typeof selectedAlternativeDates[index] === 'string') {
+            selectedAlternativeDates[index] = { date: selectedAlternativeDates[index], session: session };
+        } else {
+            selectedAlternativeDates[index].session = session;
+        }
+        syncDatesJson();
+        console.log('Updated session for index', index, 'to', session, selectedAlternativeDates);
+    }
+}
+
+function syncDatesJson() {
+    document.getElementById('alternativeDatesJson').value = JSON.stringify(selectedAlternativeDates);
+    // Set first session as the global preferred_session for backward compatibility
+    var firstSession = '';
+    if (selectedAlternativeDates.length > 0) {
+        var first = selectedAlternativeDates[0];
+        firstSession = (typeof first === 'object') ? (first.session || 'morning') : 'morning';
+    }
+    var hiddenSession = document.getElementById('preferredSessionHidden');
+    if (hiddenSession) hiddenSession.value = firstSession;
+}
+
+function removeDateFromList(dateStr, index) {
+    console.log('Removing date from list:', dateStr, 'at index:', index);
+    
+    // Use index-based removal for accuracy since dateStr might have changed via edit
+    if (index >= 0 && index < selectedAlternativeDates.length) {
+        selectedAlternativeDates.splice(index, 1);
+    } else {
+        // Fallback: find by date
+        var foundIdx = findEntryByDate(dateStr);
+        if (foundIdx !== -1) {
+            selectedAlternativeDates.splice(foundIdx, 1);
+        }
+    }
+    
+    updateSelectedDatesDisplay();
+    updateSelectedSummary();
+    
+    // Also update picker calendar if visible
+    var dateElement = document.querySelector('#multiDatePickerCalendar [data-date="' + dateStr + '"]');
+    if (dateElement) {
+        dateElement.style.backgroundColor = '#fff';
+        dateElement.style.color = 'inherit';
+        dateElement.style.borderColor = '#dee2e6';
+        var dayNum = dateStr.split('-')[2];
+        dateElement.innerHTML = '<span style="font-size:1.1em;">' + parseInt(dayNum) + '</span><span style="font-size:0.7em; margin-top:2px;">Available</span>';
+    }
+}
+
+// ============ HELPER FUNCTIONS ============
+function getClassesForDate(dateStr) {
+    console.log('Looking for classes on date:', dateStr);
+    
+    // Make sure classSchedule exists and is an array
+    if (!classSchedule || !Array.isArray(classSchedule)) {
+        console.log('classSchedule is not available or not an array');
+        return [];
+    }
+    
+    // Filter classes by exact class_date match
+    var classesOnDate = classSchedule.filter(function(cls) {
+        if (!cls || !cls.class_date) return false;
+        
+        // Convert both to strings and trim
+        var clsDate = String(cls.class_date).trim();
+        var searchDate = String(dateStr).trim();
+        
+        return clsDate === searchDate;
+    });
+    
+    console.log('Found', classesOnDate.length, 'classes on', dateStr);
+    return classesOnDate;
+}
+
+function formatDate(date) {
+    var y = date.getFullYear();
+    var m = String(date.getMonth() + 1).padStart(2, '0');
+    var d = String(date.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+}
+
+function parseDate(dateStr) {
+    if (!dateStr) return new Date();
+    var parts = dateStr.split('-').map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+}
+
+function formatDateDisplay(dateStr) {
+    if (!dateStr) return '';
+    try {
+        var date = parseDate(dateStr);
+        return date.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+function getClassColor(className) {
+    if (!className) return 'python';
+    var lower = className.toLowerCase();
+    if (lower.includes('python')) return 'python';
+    if (lower.includes('web')) return 'web';
+    if (lower.includes('3d') || lower.includes('print')) return 'printing';
+    if (lower.includes('robot')) return 'robotics';
+    if (lower.includes('art')) return 'art';
+    return 'python';
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ============ CLASSMATES FUNCTIONS ============
+function updateClassmatesList() {
+    var listEl = document.getElementById('classmatesList');
+    if (!listEl || !selectedDate) {
+        if (listEl) {
+            listEl.innerHTML = '<p class="text-muted"><small>Select a date to see classmates</small></p>';
+        }
+        return;
+    }
+    
+    var classesOnDate = getClassesForDate(selectedDate);
+    if (classesOnDate.length === 0) {
+        listEl.innerHTML = '<p class="text-muted"><small>No classes on this date</small></p>';
+        return;
+    }
+    
+    var html = '<div class="list-group list-group-flush">';
+    
+    classesOnDate.forEach(function(cls) {
+        html += '<div class="list-group-item">' +
+               '<h6 class="mb-1"><i class="bi bi-book"></i> ' + escapeHtml(cls.class_name) + '</h6>' +
+               '<small class="text-muted">See who\'s in this class:</small><br>' +
+               '<a href="/class-details/' + cls.id + '" class="btn btn-sm btn-outline-primary mt-2">' +
+               '<i class="bi bi-people"></i> View Members</a>' +
+               '</div>';
+    });
+    
+    html += '</div>';
+    listEl.innerHTML = html;
+}
+
+// ============ ALTERNATIVE DATES LIST FUNCTIONS ============
+
+function updateAlternativeDatesList() {
+    var listEl = document.getElementById('alternativeDatesList');
+    var countEl = document.getElementById('proposalsCount');
+    
+    if (!listEl) return;
+    if (!Array.isArray(attendanceData)) attendanceData = [];
+    
+    var proposals = attendanceData.filter(function(record) {
+        return record && record.can_attend === 2 &&
+               ((record.proposals && record.proposals.length > 0) || record.alternative_date);
+    });
+    
+    if (countEl) countEl.textContent = proposals.length;
+    
+    if (proposals.length === 0) {
+        listEl.innerHTML = '<p class="text-muted text-center py-3"><i class="bi bi-inbox"></i><br>No alternative dates proposed yet.</p>';
+        return;
+    }
+    
+    var html = '<div class="list-group list-group-flush">';
+    
+    proposals.forEach(function(record) {
+        var classInfo = (Array.isArray(classSchedule) ? classSchedule : []).find(function(cls) {
+            return cls && cls.id == record.class_id;
+        });
+        if (!classInfo) return;
+        
+        var statusBadge = '';
+        var statusClass = '';
+        
+        if (record.admin_approval === 1) {
+            statusBadge = '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Approved</span>';
+            statusClass = 'border-success';
+        } else if (record.admin_approval === 0) {
+            statusBadge = '<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rejected</span>';
+            statusClass = 'border-danger';
+        } else {
+            statusBadge = '<span class="badge bg-warning"><i class="bi bi-clock"></i> Pending</span>';
+            statusClass = 'border-warning';
+        }
+        
+        var originalDate = formatDateDisplay(record.class_date) || record.class_date;
+        
+        html += '<div class="list-group-item p-3 ' + statusClass + '" style="border-left-width:4px;">';
+        html += '<div class="d-flex w-100 justify-content-between align-items-start mb-2">';
+        html += '<h6 class="mb-0"><i class="bi bi-book"></i> ' + escapeHtml(classInfo.class_name) + '</h6>';
+        html += '<div>' + statusBadge + '</div>';
+        html += '</div>';
+        html += '<p class="mb-1 small"><i class="bi bi-calendar2"></i> <strong>Original:</strong> ' + originalDate + '</p>';
+        
+        if (record.proposals && record.proposals.length > 0) {
+            html += '<div class="mt-2"><small class="text-muted"><i class="bi bi-calendar-plus"></i> Proposed dates:</small>';
+            html += '<div class="d-flex flex-wrap gap-1 mt-1">';
+            
+            record.proposals.forEach(function(proposal) {
+                var badge = 'bg-warning';
+                var text = 'Pending';
+                
+                if (proposal.status === 'selected') {
+                    badge = 'bg-success';
+                    text = 'Selected';
+                } else if (proposal.status === 'rejected') {
+                    badge = 'bg-danger';
+                    text = 'Rejected';
+                }
+                
+                var displayDate = proposal.date ? new Date(proposal.date).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                }) : '';
+                
+                html += '<span class="badge ' + badge + ' bg-opacity-75 p-2" title="Status: ' + text + '">' + displayDate + '</span>';
+            });
+            
+            html += '</div></div>';
+        } else if (record.alternative_date) {
+            var proposedDate = formatDateDisplay(record.alternative_date) || record.alternative_date;
+            html += '<p class="mb-1 small"><i class="bi bi-arrow-right"></i> <strong>Proposed:</strong> ' + proposedDate + '</p>';
+        }
+        
+        if (record.reason) {
+            html += '<p class="mb-0 mt-2 small text-muted"><i class="bi bi-chat-left"></i> ' + escapeHtml(record.reason) + '</p>';
+        }
+        
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    listEl.innerHTML = html;
+}
+
+function openBulkRescheduleModal() {
+    alert('For bulk rescheduling, please email multimakerspace@gmail.com with:\n1. Your name\n2. Classes to reschedule\n3. Preferred alternative dates\n4. Reasons for changes\n\nWe\'ll work with you to find the best solution!');
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateAlternativeDatesList();
+});
+</script>
+{% endblock %}

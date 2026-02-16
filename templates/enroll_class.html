@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Multimaker Resources - Enroll in Class{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('student_dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('student_calendar') }}">Calendar</a></li>
+                <li class="breadcrumb-item active">Enroll in Class</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row mt-3">
+    <!-- Class Info Card -->
+    <div class="col-lg-8">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Enroll in Class
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Class Details -->
+                <div class="mb-4">
+                    <h3 class="mb-3">
+                        <i class="bi bi-book me-2"></i>{{ class_info.class_name }}
+                    </h3>
+                    
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="me-3">
+                                    <i class="bi bi-calendar-event text-primary" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Date</small>
+                                    <strong>{{ class_info.class_date }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="me-3">
+                                    <i class="bi bi-clock text-info" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Time</small>
+                                    <strong>{{ class_info.time or 'TBD' }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="me-3">
+                                    <i class="bi bi-hourglass-split text-warning" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Duration</small>
+                                    <strong>{{ class_info.duration }} hour(s)</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="me-3">
+                                    <i class="bi bi-person-badge text-success" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Instructor</small>
+                                    <strong>{{ class_info.instructor or 'TBD' }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if class_info.admin_notes %}
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="bi bi-sticky me-1"></i>
+                        <strong>Notes:</strong> {{ class_info.admin_notes }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <hr>
+
+                <!-- Enrollment Confirmation -->
+                <div class="mt-4">
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="bi bi-info-circle me-1"></i> Before you enroll:
+                        </h6>
+                        <ul class="mb-0 ps-3">
+                            <li>You will be able to confirm attendance or propose alternative dates from the calendar.</li>
+                            <li>Your instructor and classmates will be able to see that you are enrolled.</li>
+                            <li>Contact an administrator if you need to unenroll later.</li>
+                        </ul>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('enroll_in_class', class_id=class_info.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg px-4">
+                                <i class="bi bi-check-circle me-2"></i>Confirm Enrollment
+                            </button>
+                            <a href="{{ url_for('student_calendar') }}" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Calendar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Enrolled Students -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-people me-2"></i>Currently Enrolled
+                    <span class="badge bg-primary ms-2">{{ enrolled_count }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if classmates and classmates|length > 0 %}
+                    <div class="list-group list-group-flush">
+                        {% for mate in classmates %}
+                        <div class="list-group-item px-0 d-flex align-items-center">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+                                 style="width: 36px; height: 36px; font-size: 0.85rem; flex-shrink: 0;">
+                                {{ mate.full_name[0]|upper if mate.full_name else mate.username[0]|upper }}
+                            </div>
+                            <div>
+                                <strong>{{ mate.full_name or mate.username }}</strong>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-person-plus display-6 d-block mb-2"></i>
+                        <p class="mb-0">No students enrolled yet.</p>
+                        <small>Be the first to join!</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-link-45deg me-2"></i>Quick Links</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('student_calendar') }}" class="list-group-item list-group-item-action px-0">
+                        <i class="bi bi-calendar-check me-2 text-primary"></i> Attendance Calendar
+                    </a>
+                    <a href="{{ url_for('browse_classes') }}" class="list-group-item list-group-item-action px-0">
+                        <i class="bi bi-search me-2 text-info"></i> Browse All Classes
+                    </a>
+                    <a href="{{ url_for('class_details', class_id=class_info.id) }}" class="list-group-item list-group-item-action px-0">
+                        <i class="bi bi-info-circle me-2 text-success"></i> Full Class Details
+                    </a>
+                    <a href="{{ url_for('student_dashboard') }}" class="list-group-item list-group-item-action px-0">
+                        <i class="bi bi-house me-2 text-secondary"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

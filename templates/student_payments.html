@@ -1,0 +1,444 @@
+{% extends "base.html" %}
+
+{% block title %}My Payments - Student Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --orange-900: #7c2d12;
+    --white: #ffffff;
+    --text-dark: #431407;
+    --text-muted-sp: #78716c;
+    --border-light: #fde8d0;
+}
+
+/* ======== BANNER ======== */
+.sp-banner {
+    background: linear-gradient(135deg, var(--orange-900) 0%, var(--orange-700) 40%, var(--orange-600) 70%, var(--orange-500) 100%);
+    border-radius: 20px;
+    padding: 28px 32px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: spUp 0.6s ease 0.1s forwards;
+}
+
+.sp-banner::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.sp-banner h2 { font-size: 1.45rem; font-weight: 800; margin: 0 0 8px; }
+
+.sp-banner .back-link {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.sp-banner .back-link:hover { color: var(--white); }
+.sp-banner .back-link i { margin-right: 4px; }
+
+.sp-banner .banner-icon {
+    font-size: 2.2rem; opacity: 0.15; position: absolute;
+    right: 32px; top: 50%; transform: translateY(-50%);
+}
+
+@keyframes spUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ======== STAT CARDS ======== */
+.sp-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.sp-stat {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px 22px;
+    border: 2px solid var(--orange-100);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+    transform: translateY(16px);
+    animation: spUp 0.5s ease forwards;
+}
+
+.sp-stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+}
+
+.sp-stat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(249,115,22,0.08);
+}
+
+.sp-stat .stat-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+}
+
+.sp-stat .stat-value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.sp-stat .stat-sub {
+    font-size: 0.78rem;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.sp-stat .stat-icon {
+    width: 50px; height: 50px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.sp-stat.s-spent::before { background: linear-gradient(90deg, var(--orange-400), var(--orange-500)); }
+.sp-stat.s-spent .stat-label { color: var(--orange-600); }
+.sp-stat.s-spent .stat-value { color: var(--orange-700); }
+.sp-stat.s-spent .stat-sub { color: var(--orange-400); }
+.sp-stat.s-spent .stat-icon { background: rgba(249,115,22,0.1); color: var(--orange-500); }
+
+.sp-stat.s-classes::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.sp-stat.s-classes .stat-label { color: #059669; }
+.sp-stat.s-classes .stat-value { color: #047857; }
+.sp-stat.s-classes .stat-sub { color: #6ee7b7; }
+.sp-stat.s-classes .stat-icon { background: rgba(16,185,129,0.1); color: #10b981; }
+
+/* ======== TABLE CARD ======== */
+.sp-table-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+}
+
+.sp-table-header {
+    padding: 16px 22px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sp-table-header h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sp-table-header h5 i { color: var(--orange-500); }
+
+.sp-records-badge {
+    background: var(--orange-500);
+    color: var(--white);
+    padding: 3px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Table */
+.sp-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+}
+
+.sp-table thead th {
+    background: var(--orange-50);
+    color: var(--orange-800);
+    font-weight: 700;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 12px 14px;
+    border-bottom: 2px solid var(--orange-200);
+    white-space: nowrap;
+}
+
+.sp-table tbody tr { transition: background 0.2s; }
+.sp-table tbody tr:hover { background: var(--orange-50); }
+
+.sp-table tbody td {
+    padding: 14px;
+    border-bottom: 1px solid #fef2e8;
+    font-size: 0.88rem;
+    color: #44403c;
+    vertical-align: middle;
+}
+
+/* Badges */
+.sp-badge-type {
+    background: rgba(59,130,246,0.1);
+    color: #2563eb;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.sp-badge-count {
+    background: var(--orange-100);
+    color: var(--orange-700);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.sp-badge-remaining {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.sp-badge-remaining.has-left {
+    background: rgba(249,115,22,0.1);
+    color: var(--orange-700);
+}
+
+.sp-badge-remaining.used-up {
+    background: #f5f0eb;
+    color: #a8a29e;
+}
+
+.sp-badge-method {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.sp-badge-method.cash { background: rgba(16,185,129,0.1); color: #059669; }
+.sp-badge-method.transfer { background: rgba(59,130,246,0.1); color: #2563eb; }
+.sp-badge-method.other { background: rgba(107,114,128,0.1); color: #4b5563; }
+
+.sp-badge-receipt {
+    background: #f5f0eb;
+    color: #78716c;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 1px solid #e7e5e4;
+}
+
+.sp-amount {
+    font-weight: 700;
+    color: #059669;
+    font-size: 0.92rem;
+}
+
+/* Empty State */
+.sp-empty {
+    text-align: center;
+    padding: 40px 24px;
+}
+
+.sp-empty i { font-size: 2rem; color: var(--orange-300); display: block; margin-bottom: 10px; }
+.sp-empty p { color: var(--text-muted-sp); font-size: 0.9rem; margin: 0; }
+
+/* Footer */
+.sp-table-footer {
+    padding: 14px 22px;
+    background: var(--orange-50);
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted-sp);
+}
+
+.sp-table-footer i { color: var(--orange-400); }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sp-banner { padding: 22px 20px; }
+    .sp-banner h2 { font-size: 1.25rem; }
+    .sp-banner .banner-icon { display: none; }
+    .sp-stats { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="container-fluid py-2">
+
+    <!-- ======== BANNER ======== -->
+    <div class="sp-banner">
+        <a href="{{ url_for('student_dashboard') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <h2><i class="fas fa-credit-card me-2"></i> My Payment History</h2>
+        <i class="fas fa-wallet banner-icon"></i>
+    </div>
+
+    <!-- ======== STAT CARDS ======== -->
+    <div class="sp-stats">
+        <div class="sp-stat s-spent" style="animation-delay: 0.15s;">
+            <div>
+                <div class="stat-label">Total Spent</div>
+                <div class="stat-value">RM {{ "%.2f"|format(summary.total_amount) }}</div>
+                <div class="stat-sub">{{ summary.total_payments }} payments</div>
+            </div>
+            <div class="stat-icon"><i class="fas fa-coins"></i></div>
+        </div>
+        <div class="sp-stat s-classes" style="animation-delay: 0.25s;">
+            <div>
+                <div class="stat-label">Classes Purchased</div>
+                <div class="stat-value">{{ summary.total_classes_purchased or 0 }}</div>
+                <div class="stat-sub">Total classes bought</div>
+            </div>
+            <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+        </div>
+    </div>
+
+    <!-- ======== PAYMENT TABLE ======== -->
+    <div class="sp-table-card">
+        <div class="sp-table-header">
+            <h5><i class="fas fa-clock"></i> Payment Records</h5>
+            <span class="sp-records-badge">{{ payments|length }} Records</span>
+        </div>
+
+        {% if payments %}
+            <div class="table-responsive">
+                <table class="sp-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Class Type</th>
+                            <th>Classes</th>
+                           <!--<th>Remaining</th>-->
+                            <th>For Month</th>
+                            <th>Payment Method</th>
+                            <th>Amount</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td>
+                                <strong>{{ payment.payment_date }}</strong>
+                                <br><small style="color: var(--text-muted-sp);">{{ payment.created_at[:10] }}</small>
+                            </td>
+                            <td>
+                                <span class="sp-badge-type">{{ payment.class_type }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="sp-badge-count">{{ payment.number_of_classes }}</span>
+                            </td>
+                            <!--<td>
+                                {% if payment.classes_remaining > 0 %}
+                                    <span class="sp-badge-remaining has-left">{{ payment.classes_remaining }} left</span>
+                                {% else %}
+                                    <span class="sp-badge-remaining used-up">Used up</span>
+                                {% endif %}
+                            </td>-->
+                            <td>{{ payment.payment_month }} {{ payment.payment_year }}</td>
+                            <td>
+                                <span class="sp-badge-method {% if payment.payment_method == 'Cash' %}cash{% elif payment.payment_method == 'Online Transfer' %}transfer{% else %}other{% endif %}">
+                                    {{ payment.payment_method }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="sp-amount">RM {{ "%.2f"|format(payment.amount_paid) }}</span>
+                            </td>
+                            <td>
+                                <span class="sp-badge-receipt">
+                                    <i class="fas fa-receipt"></i> {{ payment.receipt_number or 'N/A' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if summary.last_payment_date and summary.last_payment_date != 'Never' %}
+            <div class="sp-table-footer">
+                <i class="fas fa-clock"></i>
+                <span>Last payment: <strong>{{ summary.last_payment_date }}</strong></span>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <div class="sp-empty">
+                <i class="fas fa-inbox"></i>
+                <p>No payment records found. Payments will appear here once the admin records them.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.sp-stat .stat-value').forEach(function(el) {
+        var text = el.textContent.trim();
+        var match = text.match(/(RM\s*)?([\d.]+)/);
+        if (!match) return;
+        var prefix = match[1] || '';
+        var target = parseFloat(match[2]);
+        if (isNaN(target)) return;
+        var isDecimal = text.includes('.');
+        var duration = 1000;
+        var start = performance.now();
+        el.textContent = prefix + '0' + (isDecimal ? '.00' : '');
+
+        function tick(now) {
+            var p = Math.min((now - start) / duration, 1);
+            var eased = 1 - Math.pow(1 - p, 3);
+            var current = eased * target;
+            el.textContent = prefix + (isDecimal ? current.toFixed(2) : Math.round(current));
+            if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    });
+});
+</script>
+{% endblock %}

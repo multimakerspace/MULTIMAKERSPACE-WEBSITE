@@ -1,0 +1,557 @@
+{% extends "base.html" %}
+
+{% block title %}{{ class_info.class_name }} - Class Details{% endblock %}
+
+{% block content %}
+
+<style>
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --orange-900: #7c2d12;
+    --white: #ffffff;
+    --text-dark: #431407;
+    --text-muted-cd: #78716c;
+    --border-light: #fde8d0;
+}
+
+@keyframes cdUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ======== BACK LINK ======== */
+.cd-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--orange-50);
+    border: 2px solid var(--orange-200);
+    color: var(--orange-700);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+    margin-bottom: 20px;
+}
+
+.cd-back:hover {
+    background: var(--orange-100);
+    border-color: var(--orange-300);
+    color: var(--orange-800);
+    transform: translateX(-3px);
+    text-decoration: none;
+}
+
+/* ======== BANNER ======== */
+.cd-banner {
+    background: linear-gradient(135deg, var(--orange-900) 0%, var(--orange-700) 40%, var(--orange-600) 70%, var(--orange-500) 100%);
+    border-radius: 20px;
+    padding: 30px 32px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: cdUp 0.6s ease 0.1s forwards;
+}
+
+.cd-banner::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.cd-banner h2 { font-size: 1.5rem; font-weight: 800; margin: 0 0 6px; position: relative; }
+.cd-banner .banner-icon {
+    font-size: 2.2rem; opacity: 0.15; position: absolute;
+    right: 32px; top: 50%; transform: translateY(-50%);
+}
+
+/* Enrollment badge on banner */
+.cd-enroll-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    position: relative;
+}
+
+.cd-enroll-badge.enrolled {
+    background: rgba(34,197,94,0.2);
+    color: #bbf7d0;
+}
+
+.cd-enroll-badge.not-enrolled {
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.8);
+}
+
+/* ======== CARD ======== */
+.cd-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-bottom: 22px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: cdUp 0.5s ease forwards;
+    transition: all 0.3s ease;
+}
+
+.cd-card:hover {
+    box-shadow: 0 8px 28px rgba(154,52,18,0.06);
+}
+
+.cd-card-header {
+    padding: 14px 22px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cd-card-header .cd-hicon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500));
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white); font-size: 0.85rem; flex-shrink: 0;
+}
+
+.cd-card-header h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.cd-card-body { padding: 22px; }
+
+/* ======== DETAIL GRID ======== */
+.cd-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.cd-detail-item {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--orange-50);
+    border: 1px solid var(--orange-100);
+}
+
+.cd-detail-item.full { grid-column: 1 / -1; }
+
+.cd-detail-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted-cd);
+    margin-bottom: 4px;
+}
+
+.cd-detail-label i { color: var(--orange-400); font-size: 0.8rem; }
+
+.cd-detail-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.cd-detail-value .cd-sub {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--text-muted-cd);
+}
+
+/* ======== ENROLLMENT ALERT ======== */
+.cd-alert {
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.cd-alert i { margin-top: 2px; font-size: 1rem; }
+
+.cd-alert.success {
+    background: #f0fdf4;
+    border: 2px solid #bbf7d0;
+    color: #166534;
+}
+
+.cd-alert.info {
+    background: var(--orange-50);
+    border: 2px solid var(--orange-200);
+    color: var(--orange-800);
+}
+
+.cd-alert .alert-sub {
+    font-size: 0.8rem;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+/* ======== ATTENDANCE STATS ======== */
+.cd-stat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cd-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid;
+}
+
+.cd-stat-row .cd-stat-num {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; font-weight: 800; flex-shrink: 0;
+}
+
+.cd-stat-row .cd-stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.cd-stat-row.confirmed {
+    background: #f0fdf4; border-color: #bbf7d0;
+}
+.cd-stat-row.confirmed .cd-stat-num { background: #dcfce7; color: #16a34a; }
+.cd-stat-row.confirmed .cd-stat-label { color: #166534; }
+
+.cd-stat-row.absent {
+    background: #fef2f2; border-color: #fecaca;
+}
+.cd-stat-row.absent .cd-stat-num { background: #fee2e2; color: #dc2626; }
+.cd-stat-row.absent .cd-stat-label { color: #991b1b; }
+
+.cd-stat-row.alternative {
+    background: #fffbeb; border-color: #fde68a;
+}
+.cd-stat-row.alternative .cd-stat-num { background: #fef3c7; color: #d97706; }
+.cd-stat-row.alternative .cd-stat-label { color: #92400e; }
+
+.cd-stat-row.pending {
+    background: #f5f5f4; border-color: #e7e5e4;
+}
+.cd-stat-row.pending .cd-stat-num { background: #e7e5e4; color: #57534e; }
+.cd-stat-row.pending .cd-stat-label { color: #57534e; }
+
+/* ======== MEMBER LIST ======== */
+.cd-member {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--orange-50);
+}
+
+.cd-member:last-child { border-bottom: none; }
+.cd-member:first-child { padding-top: 0; }
+
+.cd-member-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cd-member-avatar {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--orange-50);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--orange-400);
+    font-size: 0.9rem; font-weight: 700;
+    flex-shrink: 0;
+}
+
+.cd-member-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.cd-member-user {
+    font-size: 0.78rem;
+    color: #a8a29e;
+    margin: 0;
+}
+
+.cd-you-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500));
+    color: var(--white);
+    font-size: 0.68rem;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.cd-member-date {
+    font-size: 0.76rem;
+    color: #a8a29e;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* ======== EMPTY STATE ======== */
+.cd-empty {
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--text-muted-cd);
+}
+
+.cd-empty i { font-size: 1.5rem; color: var(--orange-300); margin-bottom: 8px; display: block; }
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 768px) {
+    .cd-banner { padding: 24px 20px; }
+    .cd-banner h2 { font-size: 1.25rem; }
+    .cd-banner .banner-icon { display: none; }
+    .cd-detail-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="container mt-2">
+
+    <!-- Back Link -->
+    <a href="/browse-classes" class="cd-back">
+        <i class="fas fa-chevron-left"></i> Back to Classes
+    </a>
+
+    <!-- ======== BANNER ======== -->
+    <div class="cd-banner">
+        <h2><i class="fas fa-chalkboard-teacher" style="margin-right: 8px;"></i> {{ class_info.class_name }}</h2>
+        <div style="margin-top: 10px;">
+            {% if is_enrolled %}
+            <span class="cd-enroll-badge enrolled">
+                <i class="fas fa-check-circle"></i> You're enrolled
+            </span>
+            {% else %}
+            <span class="cd-enroll-badge not-enrolled">
+                <i class="fas fa-info-circle"></i> Not enrolled
+            </span>
+            {% endif %}
+        </div>
+        <i class="fas fa-graduation-cap banner-icon"></i>
+    </div>
+
+    <div class="row">
+
+        <!-- ======== LEFT: CLASS INFO ======== -->
+        <div class="col-md-8">
+
+            <!-- Enrollment Alert -->
+            {% if is_enrolled %}
+            <div class="cd-alert success">
+                <i class="fas fa-check-circle"></i>
+                <div><strong>You're enrolled in this class!</strong></div>
+            </div>
+            {% else %}
+            <div class="cd-alert info">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong>You're not currently enrolled in this class.</strong>
+                    <div class="alert-sub">Contact the instructor or admin to join.</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Class Details Card -->
+            <div class="cd-card" style="animation-delay: 0.15s;">
+                <div class="cd-card-header">
+                    <div class="cd-hicon"><i class="fas fa-clipboard-list"></i></div>
+                    <h5>Class Details</h5>
+                </div>
+                <div class="cd-card-body">
+                    <div class="cd-detail-grid">
+
+                        <!-- Date -->
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label"><i class="fas fa-calendar-alt"></i> Date</div>
+                            <p class="cd-detail-value">{{ class_info.class_date }}</p>
+                        </div>
+
+                        <!-- Time -->
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label"><i class="fas fa-clock"></i> Time</div>
+                            <p class="cd-detail-value">
+                                {% if class_info.time %}
+                                    {{ class_info.time }}
+                                {% else %}
+                                    TBA
+                                {% endif %}
+                                {% if class_info.duration %}
+                                    <span class="cd-sub">({{ class_info.duration }} hours)</span>
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <!-- Instructor -->
+                        {% if class_info.instructor %}
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label"><i class="fas fa-user-tie"></i> Instructor</div>
+                            <p class="cd-detail-value">{{ class_info.instructor }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Level -->
+                        {% if class_info.level %}
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label"><i class="fas fa-star"></i> Level</div>
+                            <p class="cd-detail-value">{{ class_info.level }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Location -->
+                        {% if class_info.location %}
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label"><i class="fas fa-map-marker-alt"></i> Location</div>
+                            <p class="cd-detail-value">{{ class_info.location }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Capacity -->
+                        {% if class_info.capacity %}
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label"><i class="fas fa-users"></i> Capacity</div>
+                            <p class="cd-detail-value">{{ class_info.capacity }} students</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Type -->
+                        {% if class_info.class_type %}
+                        <div class="cd-detail-item full">
+                            <div class="cd-detail-label"><i class="fas fa-tag"></i> Type</div>
+                            <p class="cd-detail-value">{{ class_info.class_type }}</p>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======== RIGHT: ATTENDANCE STATS ======== -->
+        {% if is_enrolled %}
+        <div class="col-md-4">
+            <div class="cd-card" style="animation-delay: 0.2s;">
+                <div class="cd-card-header">
+                    <div class="cd-hicon"><i class="fas fa-chart-pie"></i></div>
+                    <h5>Attendance Status</h5>
+                </div>
+                <div class="cd-card-body">
+                    <div class="cd-stat-grid">
+                        <div class="cd-stat-row confirmed">
+                            <div class="cd-stat-num">
+                                {% if stats %}{{ stats.attending }}{% else %}0{% endif %}
+                            </div>
+                            <div class="cd-stat-label">Confirmed</div>
+                        </div>
+                        <div class="cd-stat-row absent">
+                            <div class="cd-stat-num">
+                                {% if stats %}{{ stats.not_attending }}{% else %}0{% endif %}
+                            </div>
+                            <div class="cd-stat-label">Cannot Attend</div>
+                        </div>
+                        <div class="cd-stat-row alternative">
+                            <div class="cd-stat-num">
+                                {% if stats %}{{ stats.alternative }}{% else %}0{% endif %}
+                            </div>
+                            <div class="cd-stat-label">Alternative Proposed</div>
+                        </div>
+                        <div class="cd-stat-row pending">
+                            <div class="cd-stat-num">
+                                {% if stats %}{{ stats.no_response }}{% else %}0{% endif %}
+                            </div>
+                            <div class="cd-stat-label">No Response</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- ======== CLASS MEMBERS ======== -->
+    <div class="cd-card" style="animation-delay: 0.3s;">
+        <div class="cd-card-header">
+            <div class="cd-hicon"><i class="fas fa-users"></i></div>
+            <h5>Class Members ({{ students|length }})</h5>
+        </div>
+        <div class="cd-card-body">
+            {% if students %}
+                {% for student in students %}
+                <div class="cd-member">
+                    <div class="cd-member-left">
+                        <div class="cd-member-avatar">
+                            {{ student.full_name[0]|upper }}
+                        </div>
+                        <div>
+                            <p class="cd-member-name">
+                                {{ student.full_name }}
+                                {% if student.id == user.id %}
+                                <span class="cd-you-badge">You</span>
+                                {% endif %}
+                            </p>
+                            <p class="cd-member-user">@{{ student.username }}</p>
+                        </div>
+                    </div>
+                    <div class="cd-member-date">
+                        {% if student.enrolled_date %}
+                            Joined: {{ student.enrolled_date[:10] }}
+                        {% else %}
+                            Member
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="cd-empty">
+                    <i class="fas fa-inbox"></i>
+                    <p>No students enrolled yet</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

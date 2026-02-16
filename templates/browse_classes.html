@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Multimaker Resources{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="bi bi-book"></i> Browse All Classes</h2>
+        <p class="text-muted">Discover what's available and see who's learning together</p>
+    </div>
+</div>
+
+<!-- Filter/Sort Options -->
+<div class="row mt-4 mb-4">
+    <div class="col-md-6">
+        <input type="text" id="classSearch" class="form-control" placeholder="Search classes...">
+    </div>
+    <div class="col-md-6">
+        <select id="classSort" class="form-select">
+            <option value="date">Sort by Date</option>
+            <option value="name">Sort by Name</option>
+            <option value="students">Sort by Enrollment</option>
+        </select>
+    </div>
+</div>
+
+<!-- Classes Grid -->
+<div class="row" id="classesGrid">
+    {% for class in classes %}
+    <div class="col-md-6 col-lg-4 mb-4 class-card" data-class-id="{{ class.id }}" data-class-name="{{ class.class_name | lower }}" data-date="{{ class.class_date }}" data-students="{{ class.enrolled_count }}">
+        <div class="card h-100 {% if class.id in user_class_ids %}border-success border-2{% endif %}">
+            <div class="card-body">
+                <!-- Your Enrollment Badge -->
+                {% if class.id in user_class_ids %}
+                <div class="mb-2">
+                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> You're Enrolled</span>
+                </div>
+                {% endif %}
+                
+                <!-- Class Name -->
+                <h5 class="card-title">{{ class.class_name }}</h5>
+                
+                <!-- Class Details -->
+                <div class="card-text" style="font-size: 0.9rem;">
+                    <p class="mb-1">
+                        <i class="bi bi-calendar"></i> 
+                        <strong>{{ class.class_date }}</strong>
+                    </p>
+                    <p class="mb-1">
+                        <i class="bi bi-clock"></i> 
+                        {{ class.time }}
+                        {% if class.duration %}
+                        <span class="text-muted">({{ class.duration }}h)</span>
+                        {% endif %}
+                    </p>
+                    
+                    {% if class.instructor %}
+                    <p class="mb-1">
+                        <i class="bi bi-person-fill"></i> 
+                        {{ class.instructor }}
+                    </p>
+                    {% endif %}
+                    
+                    
+                    
+                    
+                    
+                    <!-- Enrollment Info -->
+                    <div class="mt-3 p-2 bg-light rounded">
+                        <small>
+                            <i class="bi bi-people"></i>
+                            <strong>{{ class.enrolled_count }} student{{ class.enrolled_count != 1 and 's' or '' }} enrolled</strong>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-transparent">
+                <a href="/class-details/{{ class.id }}" class="btn btn-sm btn-primary w-100">
+                    <i class="bi bi-eye"></i> View Details & Members
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Empty State -->
+{% if not classes %}
+<div class="alert alert-info text-center">
+    <i class="bi bi-info-circle"></i>
+    <p>No classes available yet. Check back soon!</p>
+</div>
+{% endif %}
+
+<script>
+// Search functionality
+document.getElementById('classSearch').addEventListener('keyup', function() {
+    var searchTerm = this.value.toLowerCase();
+    var cards = document.querySelectorAll('.class-card');
+    
+    cards.forEach(function(card) {
+        var className = card.dataset.className;
+        if (className.includes(searchTerm)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+// Sort functionality
+document.getElementById('classSort').addEventListener('change', function() {
+    var grid = document.getElementById('classesGrid');
+    var cards = Array.from(grid.querySelectorAll('.class-card'));
+    var sortBy = this.value;
+    
+    if (sortBy === 'date') {
+        cards.sort((a, b) => a.dataset.date.localeCompare(b.dataset.date));
+    } else if (sortBy === 'name') {
+        cards.sort((a, b) => a.dataset.className.localeCompare(b.dataset.className));
+    } else if (sortBy === 'students') {
+        cards.sort((a, b) => parseInt(b.dataset.students) - parseInt(a.dataset.students));
+    }
+    
+    grid.innerHTML = '';
+    cards.forEach(card => grid.appendChild(card));
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,1028 @@
+{% extends "base.html" %}
+
+{% block title %}Multimaker Resources{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>Attendance Management</h2>
+        <p>View and manage student attendance records. Approve or reject alternative dates proposed by students/parents.</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" value="{{ date_filter }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="class_id" class="form-label">Class</label>
+                        <select class="form-control" id="class_id" name="class_id">
+                            <option value="">All Classes</option>
+                            {% for class in classes %}
+                            <option value="{{ class.id }}" {% if class_filter|string == class.id|string %}selected{% endif %}>
+                                {{ class.class_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">All Status</option>
+                            <option value="attending" {% if status_filter == 'attending' %}selected{% endif %}>Attending</option>
+                            <option value="not_attending" {% if status_filter == 'not_attending' %}selected{% endif %}>Not Attending</option>
+                            <option value="alternative" {% if status_filter == 'alternative' %}selected{% endif %}>Proposed Alternative</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">Filter</button>
+                        <a href="{{ url_for('admin_attendance') }}" class="btn btn-secondary">Clear</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3>{{ total_records }}</h3>
+                <p>Total Records</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3>{{ attending }}</h3>
+                <p>Attending</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h3>{{ not_attending }}</h3>
+                <p>Not Attending</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3>{{ alternative }}</h3>
+                <p>Proposed Alternative</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Replace the Pending Alternative Dates table in admin_attendance.html with this -->
+
+<!-- PENDING ALTERNATIVE DATES TABLE - GROUPED BY ATTENDANCE -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning bg-opacity-25 border-warning d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-check text-warning"></i> 
+                    Pending Alternative Date Proposals
+                </h5>
+                <span class="badge bg-warning">{{ pending_alternatives|length }} Students</span>
+            </div>
+            <div class="card-body">
+                {% if pending_alternatives %}
+                    {% for record in pending_alternatives %}
+                    <div class="card mb-4 border-0 bg-light">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">
+                                        <i class="bi bi-person-circle"></i> 
+                                        <strong>{{ record.student_name }}</strong> 
+                                        <small class="text-muted">@{{ record.username }}</small>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-book"></i> {{ record.class_name }} • 
+                                        <i class="bi bi-calendar"></i> Original: {{ record.class_date }} • 
+                                        <i class="bi bi-clock"></i> {{ record.time }}
+                                    </small>
+                                </div>
+                                <span class="badge bg-warning">Pending Approval</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="text-primary">
+                                        <i class="bi bi-calendar-plus"></i> Proposed Alternative Dates:
+                                    </h6>
+                                    <div class="row g-2">
+                                        {% for proposal in record.proposals %}
+                                        <div class="col-md-6">
+                                            <div class="border rounded p-3 {% if proposal.status == 'pending' %}bg-white{% elif proposal.status == 'selected' %}bg-success bg-opacity-10 border-success{% endif %}"
+                                                 id="proposal-{{ proposal.id }}">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <strong class="fs-5">{{ proposal.proposed_date }}</strong>
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            {% if proposal.preferred_session == 'morning' %}
+                                                                <i class="bi bi-sunrise"></i> Morning Session
+                                                            {% elif proposal.preferred_session == 'afternoon' %}
+                                                                <i class="bi bi-sun"></i> Afternoon Session
+                                                            {% elif proposal.preferred_session == 'evening' %}
+                                                                <i class="bi bi-moon"></i> Evening Session
+                                                            {% endif %}
+                                                        </small>
+                                                        {% if proposal.reason %}
+                                                        <div class="mt-2">
+                                                            <small><strong>Reason:</strong> {{ proposal.reason|truncate(50) }}</small>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div>
+                                                        {% if proposal.status == 'selected' %}
+                                                            <span class="badge bg-success">
+                                                                <i class="bi bi-check-circle"></i> Selected
+                                                            </span>
+                                                        {% elif proposal.status == 'rejected' %}
+                                                            <span class="badge bg-danger">
+                                                                <i class="bi bi-x-circle"></i> Rejected
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge bg-warning">Pending</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                {% if proposal.status == 'pending' %}
+                                                <div class="mt-3 d-flex gap-2">
+                                                    <form action="{{ url_for('admin_select_alternative_date') }}" 
+                                                          method="POST" style="display: inline;">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <input type="hidden" name="proposal_id" value="{{ proposal.id }}">
+                                                        <input type="hidden" name="attendance_id" value="{{ record.id }}">
+                                                        <input type="hidden" name="selected_date" value="{{ proposal.proposed_date }}">
+                                                        <button type="submit" class="btn btn-success btn-sm" 
+                                                                onclick="return confirm('Select {{ proposal.proposed_date }} as the new class date? This will reject other proposals.')">
+                                                            <i class="bi bi-check-circle"></i> Select This Date
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <button type="button" class="btn btn-outline-danger btn-sm reject-proposal-btn"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#rejectProposalModal"
+                                                            data-proposal-id="{{ proposal.id }}"
+                                                            data-proposed-date="{{ proposal.proposed_date }}"
+                                                            data-student-name="{{ record.student_name }}"
+                                                            data-class-name="{{ record.class_name }}">
+                                                        <i class="bi bi-x-circle"></i> Reject
+                                                    </button>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    {% if record.additional_remarks %}
+                                    <div class="mt-3 alert alert-info alert-sm">
+                                        <i class="bi bi-chat-text"></i> 
+                                        <strong>Additional Remarks:</strong> {{ record.additional_remarks }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 bg-white h-100">
+                                        <h6 class="text-muted"><i class="bi bi-info-circle"></i> Student's Availability</h6>
+                                        <p class="small">
+                                            <strong>Submitted:</strong> {{ record.created_at|malaysia_time }}<br>
+                                            <strong>Submitted by:</strong> {{ record.submitted_by|title }}<br>
+                                            <strong>Total proposals:</strong> {{ record.proposals|length }}
+                                        </p>
+                                        <hr class="my-2">
+                                        <p class="small text-muted mb-0">
+                                            <i class="bi bi-lightbulb"></i> 
+                                            Select the date that works best for the schedule. The selected date will be confirmed as the new class date.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reject Proposal Modals are now at the bottom of the page -->
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-success mb-0">
+                        <i class="bi bi-check-circle"></i>
+                        <strong>All caught up!</strong> There are no pending alternative date proposals.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ALL ATTENDANCE RECORDS TABLE -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>All Attendance Records ({{ total_records }})</h5>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-success" onclick="exportToCSV()">
+                        <i class="bi bi-download"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if attendance_records %}
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="attendanceTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Student</th>
+                                    <th>Class</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Reason</th>
+                                    <th>Alternative Date</th>
+                                    <th>Preferred Session</th>
+                                    <th>Remarks</th>
+                                    <th>Approval</th>
+                                    <th>Rejection Reason</th>
+                                    <th>Submitted By</th>
+                                    <th>Submitted At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_records %}
+                                <tr>
+                                    <td>{{ record.class_date }}</td>
+                                    <td>
+                                        {{ record.student_name }}
+                                        <br><small class="text-muted">@{{ record.username }}</small>
+                                    </td>
+                                    <td>{{ record.class_name }}</td>
+                                    <td>{{ record.time }}</td>
+                                    <td>
+                                        {% if record.can_attend == 1 %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-lg"></i> Attending
+                                            </span>
+                                        {% elif record.can_attend == 0 %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-lg"></i> Not Attending
+                                            </span>
+                                        {% elif record.can_attend == 2 %}
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-calendar-plus"></i> Alternative Proposed
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Unknown</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.reason %}
+                                            <small>{{ record.reason }}</small>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.can_attend == 2 %}
+                                            {% if record.proposals and record.proposals|length > 0 %}
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-info dropdown-toggle w-100" 
+                                                            type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                                        <i class="bi bi-calendar-check me-1"></i>
+                                                        {{ record.proposals|length }} Date{% if record.proposals|length > 1 %}s{% endif %}
+                                                    </button>
+                                                    <ul class="dropdown-menu p-2 shadow" style="min-width: 320px;">
+                                                        {% for prop in record.proposals %}
+                                                            <li class="mb-1">
+                                                                <div class="p-2 rounded
+                                                                    {% if prop.status == 'selected' %}bg-success bg-opacity-10 border border-success
+                                                                    {% elif prop.status == 'rejected' %}bg-danger bg-opacity-10 border border-danger
+                                                                    {% else %}bg-warning bg-opacity-10 border border-warning{% endif %}">
+                                                                    <div class="d-flex justify-content-between align-items-center">
+                                                                        <strong>{{ prop.proposed_date }}</strong>
+                                                                        {% if prop.status == 'selected' %}
+                                                                            <span class="badge bg-success">Selected</span>
+                                                                        {% elif prop.status == 'rejected' %}
+                                                                            <span class="badge bg-danger">Rejected</span>
+                                                                        {% else %}
+                                                                            <span class="badge bg-warning">Pending</span>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    {% if prop.status == 'rejected' and prop.rejection_reason %}
+                                                                        <div class="mt-1 pt-1 border-top border-danger border-opacity-25">
+                                                                            <small class="text-danger">
+                                                                                <i class="bi bi-chat-left-text me-1"></i>{{ prop.rejection_reason }}
+                                                                            </small>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% elif record.alternative_date %}
+                                                <small class="text-info"><strong>{{ record.alternative_date }}</strong></small>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.preferred_session %}
+                                            {% if record.preferred_session == 'morning' %}
+                                                <small class="text-primary">
+                                                    <i class="bi bi-sunrise"></i> Morning
+                                                </small>
+                                            {% elif record.preferred_session == 'afternoon' %}
+                                                <small class="text-warning">
+                                                    <i class="bi bi-sun"></i> Afternoon
+                                                </small>
+                                            {% elif record.preferred_session == 'evening' %}
+                                                <small class="text-info">
+                                                    <i class="bi bi-moon"></i> Evening
+                                                </small>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.additional_remarks %}
+                                            <small>{{ record.additional_remarks }}</small>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.can_attend == 2 %}
+                                            {% if record.admin_approval == 1 %}
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> Approved
+                                                </span>
+                                            {% elif record.admin_approval == 0 %}
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-x-circle"></i> Rejected
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-warning">
+                                                    <i class="bi bi-clock"></i> Pending
+                                                </span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.can_attend == 2 %}
+                                            {% if record.admin_approval == 0 and record.rejection_reason %}
+                                                <small class="text-danger"><strong>{{ record.rejection_reason }}</strong></small>
+                                            {% elif record.proposals and record.proposals|length > 0 %}
+                                                {% set ns = namespace(has_reason=false) %}
+                                                {% for rp in record.proposals %}
+                                                    {% if rp.status == 'rejected' and rp.rejection_reason %}
+                                                        {% set ns.has_reason = true %}
+                                                        <small class="text-danger d-block mb-1">
+                                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger me-1">{{ rp.proposed_date }}</span>
+                                                            {{ rp.rejection_reason }}
+                                                        </small>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if not ns.has_reason and record.rejection_reason %}
+                                                    <small class="text-danger"><strong>{{ record.rejection_reason }}</strong></small>
+                                                {% elif not ns.has_reason %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            {% elif record.rejection_reason %}
+                                                <small class="text-danger"><strong>{{ record.rejection_reason }}</strong></small>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ record.submitted_by|title }}
+                                        </span>
+                                    </td>
+                                    <td><small>{{ record.created_at|malaysia_time }}</small></td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning btn-sm me-2" title="Edit" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editAttendanceModal"
+                                                data-record-id="{{ record.id }}"
+                                                data-student-name="{{ record.student_name|replace('"', '&quot;') }}"
+                                                data-class-name="{{ record.class_name|replace('"', '&quot;') }}"
+                                                data-class-date="{{ record.class_date }}"
+                                                data-time="{{ record.time }}"
+                                                data-can-attend="{{ record.can_attend }}"
+                                                data-reason="{{ record.reason|replace('"', '&quot;') if record.reason else '' }}"
+                                                data-alt-date="{{ record.alternative_date if record.alternative_date else '' }}"
+                                                data-session="{{ record.preferred_session if record.preferred_session else '' }}"
+                                                data-remarks="{{ record.additional_remarks|replace('"', '&quot;') if record.additional_remarks else '' }}"
+                                                data-submitted-by="{{ record.submitted_by if record.submitted_by else 'parent' }}"
+                                                data-admin-approval="{{ record.admin_approval if record.admin_approval is not none else '' }}"
+                                                data-rejection-reason="{{ record.rejection_reason|replace('"', '&quot;') if record.rejection_reason else '' }}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        
+                                        <form action="{{ url_for('delete_attendance', attendance_id=record.id) }}" 
+                                              method="POST" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                    onclick="return confirm('Delete this attendance record?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>No attendance records found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SINGLE EDIT MODAL -->
+<div class="modal fade" id="editAttendanceModal" tabindex="-1" aria-labelledby="editAttendanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning bg-opacity-25 border-warning">
+                <h5 class="modal-title" id="editAttendanceModalLabel">
+                    <i class="bi bi-pencil-square"></i> Edit Attendance Record
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editAttendanceForm" method="POST" action="">
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="attendance_id" id="edit_attendance_id">
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Student</label>
+                            <p class="mb-2 fw-bold" id="edit_student_name"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Class</label>
+                            <p class="mb-2 fw-bold" id="edit_class_name"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Original Date</label>
+                            <p class="mb-2" id="edit_class_date"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Time</label>
+                            <p class="mb-2" id="edit_class_time"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Attendance Status</label>
+                        <div class="border rounded p-3 bg-light">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="can_attend" 
+                                       id="edit_attend_yes" value="1">
+                                <label class="form-check-label text-success" for="edit_attend_yes">
+                                    <i class="bi bi-check-circle"></i> Attending
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="can_attend" 
+                                       id="edit_attend_no" value="0">
+                                <label class="form-check-label text-danger" for="edit_attend_no">
+                                    <i class="bi bi-x-circle"></i> Not Attending
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="can_attend" 
+                                       id="edit_attend_alternative" value="2">
+                                <label class="form-check-label text-warning" for="edit_attend_alternative">
+                                    <i class="bi bi-calendar-plus"></i> Alternative Date Proposed
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="edit_reason_container" class="mb-3" style="display: none;">
+                        <label for="edit_reason" class="form-label">Reason</label>
+                        <textarea class="form-control" id="edit_reason" name="reason" rows="2" 
+                                  placeholder="Reason for not attending or proposing alternative..."></textarea>
+                    </div>
+                    
+                    <div id="edit_alternative_container" class="mb-3" style="display: none;">
+                        <label for="edit_alternative_date" class="form-label">Alternative Date</label>
+                        <input type="date" class="form-control" id="edit_alternative_date" name="alternative_date">
+                        <div class="form-text">Alternative date proposed by student/parent.</div>
+                    </div>
+                    
+                    <div id="edit_preferred_session_container" class="mb-3" style="display: none;">
+                        <label class="form-label">Preferred Session</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="preferred_session" 
+                                   id="edit_session_morning" value="morning">
+                            <label class="form-check-label" for="edit_session_morning">
+                                <i class="bi bi-sunrise"></i> Morning Session (9:00 AM - 11:00 AM)
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="preferred_session" 
+                                   id="edit_session_afternoon" value="afternoon">
+                            <label class="form-check-label" for="edit_session_afternoon">
+                                <i class="bi bi-sun"></i> Afternoon Session (11:00 AM - 12:00 PM)
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="preferred_session" 
+                                   id="edit_session_evening" value="evening">
+                            <label class="form-check-label" for="edit_session_evening">
+                                <i class="bi bi-moon"></i> Evening Session (2:00 PM - 5:00 PM)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="edit_admin_approval_container" class="mb-3" style="display: none;">
+                        <label class="form-label fw-bold">Admin Approval Status</label>
+                        <div class="border rounded p-3 bg-light">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="admin_approval" 
+                                       id="edit_approval_pending" value="">
+                                <label class="form-check-label" for="edit_approval_pending">
+                                    <i class="bi bi-clock"></i> Pending
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="admin_approval" 
+                                       id="edit_approval_approved" value="1">
+                                <label class="form-check-label text-success" for="edit_approval_approved">
+                                    <i class="bi bi-check-circle"></i> Approved
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="admin_approval" 
+                                       id="edit_approval_rejected" value="0">
+                                <label class="form-check-label text-danger" for="edit_approval_rejected">
+                                    <i class="bi bi-x-circle"></i> Rejected
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="edit_rejection_reason_container" class="mb-3" style="display: none;">
+                        <label for="edit_rejection_reason" class="form-label">Rejection Reason</label>
+                        <textarea class="form-control" id="edit_rejection_reason" name="rejection_reason" rows="2"
+                                  placeholder="Reason for rejection (if applicable)..."></textarea>
+                        <small class="text-muted" id="edit_rejection_reason_hint" style="display: none;">
+                            <i class="bi bi-info-circle"></i> This field will be cleared when saved since approval is not set to Rejected.
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_additional_remarks" class="form-label">Additional Remarks</label>
+                        <textarea class="form-control" id="edit_additional_remarks" name="additional_remarks" rows="2"
+                                  placeholder="Any additional remarks..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_submitted_by" class="form-label">Submitted By</label>
+                        <select class="form-control" id="edit_submitted_by" name="submitted_by">
+                            <option value="parent">Parent/Guardian</option>
+                            <option value="student">Student</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SINGLE SHARED REJECT PROPOSAL MODAL (populated by JavaScript) -->
+<div class="modal fade" id="rejectProposalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger bg-opacity-10 border-danger">
+                <h5 class="modal-title text-danger">
+                    <i class="bi bi-x-circle-fill"></i> Reject Proposal
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="rejectProposalForm" method="POST" action="">
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small">Student</label>
+                        <p class="mb-2 fw-bold" id="reject_proposal_student"></p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small">Class</label>
+                        <p class="mb-2 fw-bold" id="reject_proposal_class"></p>
+                    </div>
+                    
+                    <p>Are you sure you want to reject the proposal for 
+                        <strong id="reject_proposal_date"></strong>?
+                    </p>
+                    
+                    <div class="mb-3">
+                        <label for="reject_proposal_reason" class="form-label">
+                            <i class="bi bi-chat-left-text"></i> Reason for Rejection (Optional)
+                        </label>
+                        <textarea class="form-control" id="reject_proposal_reason" 
+                                  name="rejection_reason" rows="2"
+                                  placeholder="Explain why this date cannot be accommodated..."></textarea>
+                        <small class="text-muted">This feedback will be visible to the student/parent.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Confirm Rejection
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- SINGLE SHARED REJECT ATTENDANCE MODAL (for the main table) -->
+{% if pending_alternatives %}
+    {% for record in pending_alternatives %}
+    <div class="modal fade" id="rejectModal{{ record.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger bg-opacity-10 border-danger">
+                    <h5 class="modal-title text-danger">
+                        <i class="bi bi-x-circle-fill"></i> Reject Alternative Date
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('reject_alternative_date', attendance_id=record.id) }}" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small">Student</label>
+                            <p class="mb-2"><strong>{{ record.student_name }}</strong> (@{{ record.username }})</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small">Class</label>
+                            <p class="mb-2"><strong>{{ record.class_name }}</strong></p>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="text-muted small">Original Date</label>
+                                <p class="mb-0">
+                                    <span class="badge bg-secondary">{{ record.class_date }}</span>
+                                    <br><small>{{ record.time }}</small>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small">Proposed Alternative</label>
+                                <p class="mb-0">
+                                    <span class="badge bg-info">{{ record.alternative_date }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {% if record.reason %}
+                        <div class="mb-3">
+                            <label class="text-muted small">Student's Reason</label>
+                            <div class="alert alert-light mb-0">
+                                <small><i class="bi bi-chat-left-text"></i> {{ record.reason }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="rejection_reason{{ record.id }}" class="form-label">
+                                <i class="bi bi-chat-left-text"></i> Reason for Rejection (Optional)
+                            </label>
+                            <textarea class="form-control" id="rejection_reason{{ record.id }}" 
+                                      name="rejection_reason" rows="3" 
+                                      placeholder="Explain why this alternative date cannot be accommodated..."></textarea>
+                            <small class="text-muted">This feedback will be visible to the student/parent.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i> Confirm Rejection
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+    /* Fix table display */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table th {
+        white-space: nowrap;
+        background-color: #f8f9fa;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    
+    .table td {
+        vertical-align: middle;
+    }
+    
+    .badge {
+        margin: 2px;
+    }
+    
+    .btn-group-sm > .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    td small {
+        display: block;
+        line-height: 1.2;
+    }
+    
+    .modal-backdrop {
+        z-index: 1040;
+    }
+    .modal {
+        z-index: 1050;
+    }
+    
+    tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem;
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+</style>
+
+<script>
+function exportToCSV() {
+    const table = document.getElementById('attendanceTable');
+    const rows = table.querySelectorAll('tr');
+    const csv = [];
+    
+    const headers = [];
+    table.querySelectorAll('thead th').forEach(th => {
+        if (th.textContent !== 'Actions') {
+            headers.push(th.textContent);
+        }
+    });
+    csv.push(headers.join(','));
+    
+    rows.forEach((row, index) => {
+        if (index === 0) return;
+        
+        const cols = row.querySelectorAll('td');
+        const rowData = [];
+        
+        cols.forEach((col, colIndex) => {
+            if (colIndex === 13) return; // Skip Actions column
+            
+            let text = col.textContent.trim();
+            text = text.replace(/Attending|Not Attending|Alternative Proposed|Approved|Rejected|Pending/g, '').trim();
+            text = text.replace(/@[\w]+/g, '').trim();
+            text = text.replace(/\n/g, ' ');
+            if (text.includes(',')) {
+                text = `"${text}"`;
+            }
+            rowData.push(text || '-');
+        });
+        
+        csv.push(rowData.join(','));
+    });
+    
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `attendance_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Properly populate the edit modal
+document.addEventListener('DOMContentLoaded', function() {
+    // === REJECT PROPOSAL MODAL HANDLER ===
+    var rejectProposalModal = document.getElementById('rejectProposalModal');
+    if (rejectProposalModal) {
+        rejectProposalModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            if (!button) return;
+            
+            var proposalId = button.getAttribute('data-proposal-id');
+            var proposedDate = button.getAttribute('data-proposed-date');
+            var studentName = button.getAttribute('data-student-name');
+            var className = button.getAttribute('data-class-name');
+            
+            // Set form action
+            var form = document.getElementById('rejectProposalForm');
+            form.action = '/admin/reject-proposal/' + proposalId;
+            
+            // Populate display fields
+            document.getElementById('reject_proposal_student').textContent = studentName || '';
+            document.getElementById('reject_proposal_class').textContent = className || '';
+            document.getElementById('reject_proposal_date').textContent = proposedDate || '';
+            
+            // Clear the reason field
+            document.getElementById('reject_proposal_reason').value = '';
+        });
+    }
+
+    // Get all edit buttons and attach click handler
+    const editButtons = document.querySelectorAll('button[data-bs-target="#editAttendanceModal"]');
+    
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            console.log('Edit button clicked');
+            
+            // Get all data attributes
+            const id = this.getAttribute('data-record-id');
+            const studentName = this.getAttribute('data-student-name') || '';
+            const className = this.getAttribute('data-class-name') || '';
+            const classDate = this.getAttribute('data-class-date') || '';
+            const time = this.getAttribute('data-time') || '';
+            const canAttend = this.getAttribute('data-can-attend');
+            const reason = this.getAttribute('data-reason') || '';
+            const altDate = this.getAttribute('data-alt-date') || '';
+            const session = this.getAttribute('data-session') || '';
+            const remarks = this.getAttribute('data-remarks') || '';
+            const submittedBy = this.getAttribute('data-submitted-by') || 'parent';
+            const adminApproval = this.getAttribute('data-admin-approval');
+            const rejectionReason = this.getAttribute('data-rejection-reason') || '';
+            
+            // Set form action
+            document.getElementById('editAttendanceForm').action = '/admin/edit-attendance/' + id;
+            
+            // Set display fields
+            document.getElementById('edit_student_name').textContent = studentName || 'N/A';
+            document.getElementById('edit_class_name').textContent = className || 'N/A';
+            document.getElementById('edit_class_date').textContent = classDate || 'N/A';
+            document.getElementById('edit_class_time').textContent = time || 'N/A';
+            
+            // Set attendance status
+            document.getElementById('edit_attend_yes').checked = (canAttend == 1);
+            document.getElementById('edit_attend_no').checked = (canAttend == 0);
+            document.getElementById('edit_attend_alternative').checked = (canAttend == 2);
+            
+            // Set form fields
+            document.getElementById('edit_reason').value = reason;
+            document.getElementById('edit_alternative_date').value = altDate;
+            document.getElementById('edit_additional_remarks').value = remarks;
+            document.getElementById('edit_submitted_by').value = submittedBy;
+            document.getElementById('edit_rejection_reason').value = rejectionReason;
+            
+            // Set preferred session
+            document.getElementById('edit_session_morning').checked = (session === 'morning');
+            document.getElementById('edit_session_afternoon').checked = (session === 'afternoon');
+            document.getElementById('edit_session_evening').checked = (session === 'evening');
+            
+            // Show/hide conditional fields
+            const reasonContainer = document.getElementById('edit_reason_container');
+            const altContainer = document.getElementById('edit_alternative_container');
+            const sessionContainer = document.getElementById('edit_preferred_session_container');
+            const approvalContainer = document.getElementById('edit_admin_approval_container');
+            const rejectionContainer = document.getElementById('edit_rejection_reason_container');
+            
+            if (canAttend == 0 || canAttend == 2) {
+                reasonContainer.style.display = 'block';
+            } else {
+                reasonContainer.style.display = 'none';
+            }
+            
+            if (canAttend == 2) {
+                altContainer.style.display = 'block';
+                sessionContainer.style.display = 'block';
+                approvalContainer.style.display = 'block';
+                rejectionContainer.style.display = 'block';
+                
+                // Set admin approval status
+                if (adminApproval === '1') {
+                    document.getElementById('edit_approval_approved').checked = true;
+                    document.getElementById('edit_rejection_reason_hint').style.display = 'block';
+                } else if (adminApproval === '0') {
+                    document.getElementById('edit_approval_rejected').checked = true;
+                    document.getElementById('edit_rejection_reason_hint').style.display = 'none';
+                } else {
+                    document.getElementById('edit_approval_pending').checked = true;
+                    document.getElementById('edit_rejection_reason_hint').style.display = 'block';
+                }
+            } else {
+                altContainer.style.display = 'none';
+                sessionContainer.style.display = 'none';
+                approvalContainer.style.display = 'none';
+                rejectionContainer.style.display = 'none';
+            }
+        });
+    });
+    
+    // Handle admin approval radio change to show/hide rejection reason hint
+    const approvalRadios = document.querySelectorAll('input[name="admin_approval"]');
+    approvalRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const rejectionHint = document.getElementById('edit_rejection_reason_hint');
+            if (this.value === '0') {
+                // Rejected - hide hint, admin can type reason
+                rejectionHint.style.display = 'none';
+            } else {
+                // Approved or Pending - show hint that it will be cleared on save
+                rejectionHint.style.display = 'block';
+            }
+        });
+    });
+    
+    // Handle attendance status radio change
+    const statusRadios = document.querySelectorAll('input[name="can_attend"]');
+    statusRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const reasonContainer = document.getElementById('edit_reason_container');
+            const altContainer = document.getElementById('edit_alternative_container');
+            const sessionContainer = document.getElementById('edit_preferred_session_container');
+            const approvalContainer = document.getElementById('edit_admin_approval_container');
+            const rejectionContainer = document.getElementById('edit_rejection_reason_container');
+            
+            if (this.value === '0' || this.value === '2') {
+                reasonContainer.style.display = 'block';
+            } else {
+                reasonContainer.style.display = 'none';
+            }
+            
+            if (this.value === '2') {
+                altContainer.style.display = 'block';
+                sessionContainer.style.display = 'block';
+                approvalContainer.style.display = 'block';
+                rejectionContainer.style.display = 'block';
+            } else {
+                altContainer.style.display = 'none';
+                sessionContainer.style.display = 'none';
+                approvalContainer.style.display = 'none';
+                rejectionContainer.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,124 +1,653 @@
 {% extends "base.html" %}
 
-{% block title %}Media Management - Admin Dashboard{% endblock %}
+{% block title %}Media Management - Multimaker Resources{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h2>Media Management</h2>
-            <p class="lead">Upload and manage website images</p>
-        </div>
+
+<style>
+:root {
+    --orange-50: #fff7ed;
+    --orange-100: #ffedd5;
+    --orange-200: #fed7aa;
+    --orange-300: #fdba74;
+    --orange-400: #fb923c;
+    --orange-500: #f97316;
+    --orange-600: #ea580c;
+    --orange-700: #c2410c;
+    --orange-800: #9a3412;
+    --orange-900: #7c2d12;
+    --white: #ffffff;
+    --text-dark: #431407;
+    --text-muted-am: #78716c;
+    --border-light: #fde8d0;
+}
+
+/* ======== BANNER ======== */
+.am-banner {
+    background: linear-gradient(135deg, var(--orange-900) 0%, var(--orange-700) 40%, var(--orange-600) 70%, var(--orange-500) 100%);
+    border-radius: 20px;
+    padding: 28px 32px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: amUp 0.6s ease 0.1s forwards;
+}
+
+.am-banner::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.am-banner h2 { font-size: 1.45rem; font-weight: 800; margin: 0 0 6px; position: relative; }
+.am-banner p { margin: 0; opacity: 0.8; font-size: 0.9rem; position: relative; }
+
+.am-banner .banner-icon {
+    font-size: 2.2rem; opacity: 0.15; position: absolute;
+    right: 32px; top: 50%; transform: translateY(-50%);
+}
+
+@keyframes amUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ======== SECTION CARD ======== */
+.am-card {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.am-card-header {
+    padding: 16px 22px;
+    background: var(--orange-50);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.am-card-header h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.am-card-header i { color: var(--orange-500); }
+
+.am-card-body { padding: 22px; }
+
+/* ======== UPLOAD FORM ======== */
+.am-form-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+
+.am-form-input {
+    border: 2px solid var(--orange-200);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    transition: all 0.25s;
+    width: 100%;
+    font-family: inherit;
+    background: var(--white);
+    color: var(--text-dark);
+}
+
+.am-form-input:focus {
+    border-color: var(--orange-400);
+    box-shadow: 0 0 0 4px rgba(249,115,22,0.1);
+    outline: none;
+}
+
+select.am-form-input { appearance: auto; }
+textarea.am-form-input { resize: vertical; min-height: 80px; }
+
+.am-form-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted-am);
+    margin-top: 4px;
+}
+
+.am-upload-btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500));
+    color: var(--white);
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(249,115,22,0.2);
+}
+
+.am-upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249,115,22,0.3);
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
+}
+
+/* ======== FILTER BAR ======== */
+.am-filter {
+    background: var(--white);
+    border-radius: 16px;
+    border: 2px solid var(--orange-100);
+    padding: 20px 22px;
+    margin-bottom: 24px;
+}
+
+.am-filter-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted-am);
+    margin: 0 0 12px;
+}
+
+.am-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.am-pill {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+    border: 2px solid var(--orange-200);
+    color: var(--orange-700);
+    background: var(--white);
+}
+
+.am-pill:hover {
+    background: var(--orange-50);
+    border-color: var(--orange-300);
+    color: var(--orange-700);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.am-pill.active {
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500));
+    color: var(--white);
+    border-color: var(--orange-500);
+    box-shadow: 0 4px 14px rgba(249,115,22,0.2);
+}
+
+.am-pill.active:hover { color: var(--white); text-decoration: none; }
+
+/* ======== MEDIA GRID ======== */
+.am-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 22px;
+}
+
+/* ======== MEDIA CARD ======== */
+.am-media-card {
+    background: var(--white);
+    border-radius: 18px;
+    border: 2px solid var(--orange-100);
+    overflow: hidden;
+    transition: all 0.35s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: amUp 0.5s ease forwards;
+}
+
+.am-media-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(154,52,18,0.1);
+    border-color: var(--orange-200);
+}
+
+/* Image */
+.am-media-img {
+    position: relative;
+    overflow: hidden;
+    height: 240px;
+}
+
+.am-media-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.am-media-card:hover .am-media-img img {
+    transform: scale(1.06);
+}
+
+.am-media-img .am-cat-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255,255,255,0.92);
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--orange-700);
+    z-index: 2;
+}
+
+/* Overlay */
+.am-media-img .am-img-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to top, rgba(124,45,18,0.45) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.35s;
+}
+
+.am-media-card:hover .am-img-overlay { opacity: 1; }
+
+/* Card Body */
+.am-media-body {
+    padding: 18px 20px;
+}
+
+.am-media-body h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 6px;
+}
+
+.am-media-body .am-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted-am);
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+.am-media-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+}
+
+.am-media-meta small {
+    font-size: 0.78rem;
+    color: #a8a29e;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.am-media-meta small i { color: var(--orange-300); font-size: 0.72rem; }
+
+/* Action Buttons */
+.am-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.am-edit-btn {
+    padding: 7px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--orange-200);
+    background: var(--orange-50);
+    color: var(--orange-700);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.am-edit-btn:hover {
+    background: var(--orange-100);
+    border-color: var(--orange-300);
+    transform: translateY(-1px);
+}
+
+.am-delete-btn {
+    padding: 7px 14px;
+    border-radius: 10px;
+    border: 2px solid #fecaca;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.am-delete-btn:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+    transform: translateY(-1px);
+}
+
+/* ======== EMPTY STATE ======== */
+.am-empty {
+    text-align: center;
+    padding: 60px 24px;
+}
+
+.am-empty .empty-icon {
+    width: 80px; height: 80px;
+    border-radius: 20px;
+    background: var(--orange-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    font-size: 2rem;
+    color: var(--orange-300);
+}
+
+.am-empty h4 { font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin: 0 0 8px; }
+.am-empty p { font-size: 0.9rem; color: var(--text-muted-am); margin: 0; }
+
+/* ======== EDIT MODAL ======== */
+.modal-header-orange {
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
+    color: var(--white);
+    border-bottom: none;
+}
+
+.modal-content-styled {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid var(--orange-100);
+}
+
+.edit-preview {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid var(--orange-100);
+    margin-bottom: 16px;
+}
+
+.modal-save-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--orange-400), var(--orange-500));
+    color: var(--white);
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.modal-save-btn:hover {
+    background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249,115,22,0.25);
+}
+
+.modal-cancel-btn {
+    padding: 10px 20px;
+    border: 2px solid #d6d3d1;
+    border-radius: 10px;
+    background: var(--white);
+    color: #57534e;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-cancel-btn:hover { background: #f5f5f4; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .am-banner { padding: 22px 20px; }
+    .am-banner .banner-icon { display: none; }
+    .am-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="container mt-2">
+
+    <!-- ======== BANNER ======== -->
+    <div class="am-banner">
+        <h2><i class="fas fa-photo-video" style="margin-right: 8px;"></i> Media Management</h2>
+        <p>Upload and manage website images</p>
+        <i class="fas fa-cog banner-icon"></i>
     </div>
 
-    <!-- Upload Form -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Upload New Media</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{{ url_for('upload_media') }}" method="POST" enctype="multipart/form-data">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="file" class="form-label">Select Image</label>
-                                    <input type="file" class="form-control" id="file" name="file" accept="image/*" required>
-                                    <div class="form-text">Max file size: 16MB. Allowed: JPG, PNG, GIF, WEBP</div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="title" class="form-label">Title</label>
-                                    <input type="text" class="form-control" id="title" name="title" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="category" class="form-label">Category</label>
-                                    <select class="form-control" id="category" name="category" required>
-                                        <option value="events">Events</option>
-                                        <option value="classes">Classes</option>
-                                        <option value="projects">Projects</option>
-                                        <option value="students">Students</option>
-                                        <option value="facilities">Facilities</option>
-                                        <option value="general">General</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="description" class="form-label">Description (Optional)</label>
-                                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                                </div>
-                            </div>
+    <!-- ======== UPLOAD FORM ======== -->
+    <div class="am-card">
+        <div class="am-card-header">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h5>Upload New Media</h5>
+        </div>
+        <div class="am-card-body">
+            <form action="{{ url_for('upload_media') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="file" class="am-form-label">Select Image</label>
+                            <input type="file" class="am-form-input" id="file" name="file" accept="image/*" required>
+                            <div class="am-form-hint">Max file size: 16MB. Allowed: JPG, PNG, GIF, WEBP</div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Upload Media</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Category Filter -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Filter Media</h5>
-                    <div class="btn-group" role="group">
-                        <a href="{{ url_for('admin_media') }}?category=all" 
-                           class="btn {% if current_category == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                            All ({{ media|length }})
-                        </a>
-                        {% for cat in categories %}
-                        <a href="{{ url_for('admin_media') }}?category={{ cat.category }}" 
-                           class="btn {% if current_category == cat.category %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                            {{ cat.category|title }}
-                        </a>
-                        {% endfor %}
+                        <div class="mb-3">
+                            <label for="title" class="am-form-label">Title</label>
+                            <input type="text" class="am-form-input" id="title" name="title" required placeholder="Enter image title">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="category" class="am-form-label">Category</label>
+                            <select class="am-form-input" id="category" name="category" required>
+                                <option value="events">Events</option>
+                                <option value="classes">Classes</option>
+                                <option value="projects">Projects</option>
+                                <option value="students">Students</option>
+                                <option value="facilities">Facilities</option>
+                                <option value="general">General</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="am-form-label">Description <span style="font-weight: 400; color: var(--text-muted-am);">(Optional)</span></label>
+                            <textarea class="am-form-input" id="description" name="description" rows="3" placeholder="Describe the image..."></textarea>
+                        </div>
                     </div>
                 </div>
-            </div>
+                <button type="submit" class="am-upload-btn">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Media
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Media Grid -->
-    <div class="row">
-        {% if media %}
+    <!-- ======== FILTER BAR ======== -->
+    <div class="am-filter">
+        <div class="am-filter-title">
+            <i class="fas fa-filter" style="color: var(--orange-400); margin-right: 6px;"></i> Filter Media
+        </div>
+        <div class="am-pills">
+            <a href="{{ url_for('admin_media') }}?category=all"
+               class="am-pill {% if current_category == 'all' %}active{% endif %}">
+                All ({{ media|length }})
+            </a>
+            {% for cat in categories %}
+            <a href="{{ url_for('admin_media') }}?category={{ cat.category }}"
+               class="am-pill {% if current_category == cat.category %}active{% endif %}">
+                {{ cat.category|title }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ======== MEDIA GRID ======== -->
+    {% if media %}
+        <div class="am-grid">
             {% for item in media %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card h-100">
-                    <img src="{{ url_for('static', filename='media/' + item.filename) }}" 
-                         class="card-img-top" 
-                         alt="{{ item.title }}"
-                         style="height: 250px; object-fit: cover;">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ item.title }}</h5>
-                        {% if item.description %}
-                        <p class="card-text">{{ item.description }}</p>
-                        {% endif %}
-                        <div class="mb-2">
-                            <span class="badge bg-secondary">{{ item.category|title }}</span>
-                            <small class="text-muted d-block">Uploaded by: {{ item.username }}</small>
-                            <small class="text-muted">{{ item.uploaded_at[:10] }}</small>
-                        </div>
+            <div class="am-media-card" data-delay="{{ loop.index0 }}">
+                <div class="am-media-img">
+                    <img src="{{ url_for('static', filename='media/' + item.filename) }}"
+                         alt="{{ item.title|e }}"
+                         loading="lazy">
+                    <span class="am-cat-tag">{{ item.category|title }}</span>
+                    <div class="am-img-overlay"></div>
+                </div>
+                <div class="am-media-body">
+                    <h5>{{ item.title }}</h5>
+                    {% if item.description %}
+                    <p class="am-desc">{{ item.description }}</p>
+                    {% endif %}
+                    <div class="am-media-meta">
+                        <small><i class="fas fa-user"></i> Uploaded by: {{ item.username }}</small>
+                        <small><i class="fas fa-calendar-alt"></i> {{ item.uploaded_at[:10] }}</small>
+                    </div>
+                    <div class="am-actions">
+                        <button type="button" class="am-edit-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editMediaModal"
+                                data-id="{{ item.id }}"
+                                data-title="{{ item.title|e }}"
+                                data-description="{{ item.description|e if item.description else '' }}"
+                                data-category="{{ item.category }}"
+                                data-img="{{ url_for('static', filename='media/' + item.filename) }}">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
                         <form action="{{ url_for('delete_media', media_id=item.id) }}" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm" 
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="am-delete-btn"
                                     onclick="return confirm('Are you sure you want to delete this image?')">
-                                Delete
+                                <i class="fas fa-trash-alt"></i> Delete
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
             {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="fas fa-images fa-3x text-muted mb-3"></i>
-                    <h4>No media found</h4>
-                    <p class="text-muted">Upload some images to get started.</p>
-                </div>
+        </div>
+    {% else %}
+        <div class="am-empty">
+            <div class="empty-icon"><i class="fas fa-images"></i></div>
+            <h4>No media found</h4>
+            <p>Upload some images to get started.</p>
+        </div>
+    {% endif %}
+
+</div>
+
+<!-- ======== EDIT MEDIA MODAL ======== -->
+<div class="modal fade" id="editMediaModal" tabindex="-1" aria-labelledby="editMediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content modal-content-styled">
+            <div class="modal-header modal-header-orange">
+                <h5 class="modal-title" id="editMediaModalLabel">
+                    <i class="fas fa-edit me-2"></i> Edit Media
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        {% endif %}
+            <form id="editMediaForm" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body" style="padding: 24px;">
+                    <!-- Image Preview -->
+                    <img id="editPreviewImg" src="" alt="Preview" class="edit-preview">
+
+                    <div class="mb-3">
+                        <label for="editTitle" class="am-form-label">Title</label>
+                        <input type="text" class="am-form-input" id="editTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCategory" class="am-form-label">Category</label>
+                        <select class="am-form-input" id="editCategory" name="category" required>
+                            <option value="events">Events</option>
+                            <option value="classes">Classes</option>
+                            <option value="projects">Projects</option>
+                            <option value="students">Students</option>
+                            <option value="facilities">Facilities</option>
+                            <option value="general">General</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="am-form-label">Description <span style="font-weight: 400; color: var(--text-muted-am);">(Optional)</span></label>
+                        <textarea class="am-form-input" id="editDescription" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-light); padding: 16px 24px;">
+                    <button type="button" class="modal-cancel-btn" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="modal-save-btn">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+(function() {
+    // Staggered animation delays
+    var cards = document.querySelectorAll('.am-media-card[data-delay]');
+    for (var i = 0; i < cards.length; i++) {
+        var delay = parseInt(cards[i].getAttribute('data-delay'), 10) || 0;
+        cards[i].style.animationDelay = (delay * 0.08) + 's';
+    }
+
+    // Populate edit modal with media data from button attributes
+    var editModal = document.getElementById('editMediaModal');
+    if (editModal) {
+        editModal.addEventListener('show.bs.modal', function(event) {
+            var btn = event.relatedTarget;
+            var mediaId = btn.getAttribute('data-id');
+            var title = btn.getAttribute('data-title');
+            var description = btn.getAttribute('data-description');
+            var category = btn.getAttribute('data-category');
+            var imgSrc = btn.getAttribute('data-img');
+
+            // Set form action dynamically
+            document.getElementById('editMediaForm').action = '/admin/edit-media/' + mediaId;
+
+            // Fill form fields
+            document.getElementById('editTitle').value = title || '';
+            document.getElementById('editDescription').value = description || '';
+            document.getElementById('editPreviewImg').src = imgSrc || '';
+
+            // Select the correct category
+            var catSelect = document.getElementById('editCategory');
+            for (var j = 0; j < catSelect.options.length; j++) {
+                if (catSelect.options[j].value === category) {
+                    catSelect.selectedIndex = j;
+                    break;
+                }
+            }
+        });
+    }
+})();
+</script>
 {% endblock %}
